@@ -68,6 +68,9 @@ aa <- 'your answer here'
 bb <- 'your answer here'
 cc <- 'your answer here'
 
+aa = 'CS_rate'
+bb = 100
+cc = 'CS_rate_100'
 # YOUR CODE HERE
 ```
 
@@ -119,7 +122,7 @@ ggplot(data = CS_data, aes(x = GDP_2006)) +
 
 ```{r p2}
 # p2 <- 'skewed left'
-# p2 <- 'skewed right'
+p2 <- 'skewed right'
 # p2 <- 'symmetric'
 # p2 <- 'bimodal'
 
@@ -136,7 +139,7 @@ ggplot(data = CS_data, aes(x = GDP_2006)) +
 
 ```{r p3}
 # p3 <- 'same'
-# p3 <- 'larger than'
+p3 <- 'larger than'
 # p3 <- 'smaller than'
 
 # YOUR CODE HERE
@@ -149,7 +152,10 @@ ggplot(data = CS_data, aes(x = GDP_2006)) +
 
 **4. [3 points] Describe, in words, how the mean and median are calculated.**
 
-_Type your answer here, replacing this text._
+###
+Mean: calculated by taking all values of x, sum them, then divide by number of elements.
+Median: split the data in exactly half, find this 50th percentile, and read its x value.
+###
 
 
 To calculate the mean and median in R, we can use the `summarize()` function from the `dplyr` package. The `summarize()` function is used any time we want to take a variable and use one number to summarize something about it, like with the mean or median. Below is the code to summarize the mean of all countries' `GDP_2006` and to print it to the screen. In the code, we name the mean `mean_GDP` and output the result:
@@ -164,6 +170,9 @@ GDP_summary
 
 ```{r summarize-median}
 GDP_summary <- NULL # YOUR CODE HERE
+#?median
+?summarize
+GDP_summary <- CS_data %>% summarize(mean_GDP = mean(GDP_2006), median_GDP = median(GDP_2006))
 GDP_summary
 
 # YOUR CODE HERE
@@ -178,14 +187,20 @@ GDP_summary
 **6. [2 points] `geom_vline()` can be used to add the mean and the median to the histogram shown above. This `geom_vline()` adds a vertical line to the graph. You need to specify where to add the line by passing it an "x-intercept" argument. Remove the comments (i.e., the three "#") from the code below and update the `geom_vline()` code to plot lines at the mean and median by telling it the mean and median estimates. The argument `lty=1` (line type) will plot a solid line and `lty=2` will plot a dashed line.**  
 
 *For the purposes of this question, please assign the x-intercept to a plain NUMERIC value, not a variable or expression.*
+#### duh, that's why i failed grader!!
 
 ```{r add-mean-med-plot}
 p6 <- ggplot(data = CS_data, aes(x = GDP_2006)) +
         geom_histogram(col = 'white', fill = 'sienna2') + 
         xlab('GDP in 2006') +
-        theme_minimal() #+
-        #geom_vline(aes(xintercept = ), lty=1) + 
-        #geom_vline(aes(xintercept = ), lty=2) 
+        theme_minimal() +
+        geom_vline(aes(xintercept = 11790.67    ),  lty=1) + 
+        geom_vline(aes(xintercept =   3351.305  ),  lty=2) 
+
+  
+  
+###        geom_vline(aes(xintercept = mean(GDP_2006)  ),  lty=1) + 
+###        geom_vline(aes(xintercept = median(GDP_2006)),  lty=2) 
 p6
 
 
@@ -216,7 +231,7 @@ ggplot(data = CS_data, aes(x = CS_rate_100)) +
 # p7 <- 'skewed left'
 # p7 <- 'skewed right'
 # p7 <- 'symmetric'
-# p7 <- 'bimodal'
+p7 <- 'bimodal'
 
 # YOUR CODE HERE
 ```
@@ -231,11 +246,19 @@ ggplot(data = CS_data, aes(x = CS_rate_100)) +
 
 **8. [1 point] Extend the ggplot code given below using the `facet_wrap()` statement to make a separate histogram for each level of the `Income_Group` variable.**
 
+
+
 ```{r CS-histogram-by-income}
+?facet_wrap
+
 p8 <- ggplot(data = CS_data, aes(x = CS_rate_100)) +
         geom_histogram(binwidth = 6, col = 'white', fill = 'sienna2') + 
         xlab('Cesarean delivery rate (%)') +
-        theme_minimal() 
+        theme_minimal() #+
+
+p8 = p8 + facet_wrap(~Income_Group)
+#tinTmp
+#p8 = tinTmp
 p8
 
 
@@ -250,13 +273,14 @@ p8
 
 **9. [2 points] Based on both this plot and the previous plot, describe why the data had two peaks.**
 
-_Type your answer here, replacing this text._
+as income increases, ceasrean rate increases
 
 \newpage
 
 **10. [1 point] Why might lower income countries have lower rates of cesarean delivery?**
 
-_Type your answer here, replacing this text._
+C-sesction is not a cheap procedure, thus not affordable to the masses in lower income country?   Or sanitation is not as good in lower income country, rendering c-section more risky than high income country, thus less favorable?
+
 
 \newpage
 
@@ -264,6 +288,8 @@ _Type your answer here, replacing this text._
 
 ```{r calc-mean-cs}
 CS_summary <- NULL # YOUR CODE HERE
+CS_summary =  CS_data %>% summarize(mean_CS = mean(CS_rate_100), median_CS = median(CS_rate_100))
+
 CS_summary
 
 # YOUR CODE HERE
@@ -281,6 +307,10 @@ CS_summary
 
 ```{r p12}
 p12 <- NULL # YOUR CODE HERE
+
+## boxplot, lecture 04 material
+
+p12 = ggplot(CS_data, aes(y=CS_rate_100)) + geom_boxplot() 
 p12
 
 
@@ -306,10 +336,30 @@ Recall that the box plot summarizes the distribution in five numbers: the minimu
 **13. [2 points] Use a combination of `dplyr`'s `summarize` function and the above functions to compute the five number summary of `CS_rate_100`. Assign the summary to the name `five_num_summary`, which should contain values for `min`, `Q1`,`median`, `Q3`, and `max` (in this order and with these names).**
 
 ```{r five-number-summary}
-five_num_summary <- NULL # YOUR CODE HERE
-five_num_summary
+
+
+
+#five_num_summary <- NULL # YOUR CODE HERE
+#five_num_summary
 
 # YOUR CODE HERE
+Min = min(CS_data$CS_rate_100)
+Q1 = quantile(CS_data$CS_rate_100, probs = 0.25)
+Median = median(CS_data$CS_rate_100)
+Q3 = quantile(CS_data$CS_rate_100, probs = 0.75)
+Max = max(CS_data$CS_rate_100)
+#five_num_summary = ( Min, Q1, Median, Q3, Max )
+
+five_num_summary = CS_data %>% summarize( min = Min, 
+                                          Q1 = Q1,
+                                          median = Median,
+                                          Q3 = Q3, 
+                                          max = Max)
+                                            
+                                            
+
+five_num_summary
+
 ```
 
 ```{r}
@@ -326,7 +376,12 @@ Double check that `geom_boxplot()` is making the box plot correctly. You can do 
 p14 <- ggplot(data = CS_data, aes(y = CS_rate_100)) +
           geom_boxplot(col = 'black', fill = 'sienna2') +
           theme_minimal() + 
-          geom_hline(aes(yintercept = 0.4), col = 'blue')
+          geom_hline(aes(yintercept = 0.4), col = 'blue') +
+          geom_hline(aes(yintercept = 5.1), col = 'blue') +
+          geom_hline(aes(yintercept = 15.6), col = 'blue') +
+          geom_hline(aes(yintercept = 23.4), col = 'blue') +
+          geom_hline(aes(yintercept = 45.9), col = 'blue') 
+
           # add more geom_hlines 
 p14
 
@@ -340,6 +395,7 @@ p14
 \newpage
 
 **15. [4 points] Run the following code that adds two points to `CS_data`, makes a new dataset called `CS_data_plus_2`, and redraws the box plot. How did the box plot change? Perform a calculation to justify why it changed. What are the newly-added features on the plot called?**
+
 
 ```{r add-points, fig.width = 5}
 out_data <- tibble::tribble(
@@ -357,9 +413,50 @@ ggplot(data = CS_data_plus_2, aes(y = CS_rate_100)) +
 ```{r calculations_new_IQR}
 # YOUR CALCULATIONS HERE
 
+CS_data2 = CS_data_plus_2
+
+Min = min(CS_data2$CS_rate_100)
+Q1 = quantile(CS_data2$CS_rate_100, probs = 0.25)
+Median = median(CS_data2$CS_rate_100)
+Q3 = quantile(CS_data2$CS_rate_100, probs = 0.75)
+Max = max(CS_data2$CS_rate_100)
+
+five_num_summary2 = CS_data2 %>% summarize( min = Min, 
+                                          Q1 = Q1,
+                                          median = Median,
+                                          Q3 = Q3, 
+                                          max = Max)
+                                            
+                                            
+
+five_num_summary2
+fns2 = five_num_summary2
+
+p14b <- ggplot(data = CS_data2, aes(y = CS_rate_100)) +
+          geom_boxplot(col = 'black', fill = 'sienna2') +
+          theme_minimal() + 
+          geom_hline(aes(yintercept = 0.4), col = 'blue') +
+          geom_hline(aes(yintercept = 5.1), col = 'blue') +
+          geom_hline(aes(yintercept = 15.6), col = 'blue') +
+          geom_hline(aes(yintercept = 23.4), col = 'blue') +
+          geom_hline(aes(yintercept = 45.9), col = 'blue') +
+          geom_hline(aes(yintercept = fns2$min), col = 'green') +
+          geom_hline(aes(yintercept = fns2$Q1), col = 'green') +
+          geom_hline(aes(yintercept = fns2$median), col = 'green') +
+          geom_hline(aes(yintercept = fns2$Q3),     col = 'green') +
+          geom_hline(aes(yintercept = fns2$max),    col = 'green') 
+
+
+
+p14b
+
+
 # YOUR CODE HERE
 ```
 
-_Type your answer here, replacing this text._
+###
+It added two numbers in the far "high" end, creating a shift/skew.
+outliers!
+
 
 ## END

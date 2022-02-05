@@ -85,8 +85,33 @@ category of disease.
 - First, read and view the infectious disease data from Baldi and Moore:
 
 ```{r make-bar-chart}
-id_data <- read_csv("Ch01_ID-data.csv")
+#id_data <- read_csv("Ch01_ID-data.csv")
+id_data <- read_csv("Ch01_opioid-data.csv")  ##  just so code runs, wrong csv
+
 ```
+### CH01_ID-data.csv not in git repo :-\
+### Lecture slide 10/53 show this:
+##  id_data
+## # A tibble: 7 x 4
+## disease type number_cases percent_cases
+## <chr> <chr> <dbl> <dbl>
+## 1 Chlamydia STI 174557 66.4
+## 2 Gonorrhea STI 44974 17.1
+## 3 Pertussis Pertussis 11219 4.27
+## 4 Campylobacteriosis Foodborne 7919 3.01
+## 5 Early syphilis STI 7191 2.74
+## 6 Salmonellosis Foodborne 5361 2.04
+## 7 Other Other 11559 4.40
+
+## Parsed with column specification:
+## cols(
+## disease = col_character(),
+## type = col_character(),
+## number_cases = col_double(),
+## percent_cases = col_double()
+## )
+
+
 
 ### Example: infectious disease data
 ```{r show-id}

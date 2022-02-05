@@ -1,6 +1,6 @@
 ---
 title: 'Lab 2: Visualization of global rates of cesarean delivery'
-author: "Your name and student ID"
+author: "Tin Ho 3033518349"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: pdf_document
 ---
@@ -54,6 +54,11 @@ The data on each country's cesarean delivery rate is stored in a comma-separated
 ```{r read-in-the-data}
 CS_data_raw <- read_csv("data/cesarean.csv")
 
+##View(CS_data_raw)
+##
+library(readr)
+#//View(CS_data_raw)
+
 # The code below re-orders the variable Income_Group in the specified order.
 # Note that it *does not* change the order of the data frame (like arrange() does)
 # Rather, it specifies the order in which the data will be plotted. 
@@ -63,6 +68,17 @@ CS_data_raw <- CS_data_raw %>%
   mutate(Income_Group_order = forcats::fct_relevel(Income_Group, "Low income", 
                                               "Lower middle income", "Upper middle income", 
                                               "High income: nonOECD", "High income: OECD"))
+
+### df CS_data_raw is reassigned to itself!
+### so think of this as appending column to existing df.
+### mutate end up adding new column,  named Income_Group_order
+### new col created using forcats::fct_relevel()
+### if one do:
+str(CS_data_raw)
+### it shows that the new column store "Factor" types data, albeit View() doesn't show any difference
+### Income_Group_order: Factor w/ 5 levels "Low income","Lower middle income
+
+### later on still need to use pull() and levels() to ??? 
 ```
 
 Look at the environment tab (top right pane) and make sure you see your dataset there. Click on `CS_data_raw` in that pane. This will open the data viewer tab. Take a quick look at the data and then switch back to the "lab02.Rmd" file and move to the next step.
@@ -90,44 +106,41 @@ In four separate code chunks, type `str(CS_data_raw)`, `dim(CS_data_raw)`,
 ```{r keep-exploring-the-data-1}
 
 # YOUR CODE HERE
+str(CS_data_raw)
 ```
 
 ```{r keep-exploring-the-data-2}
 
 # YOUR CODE HERE
+dim(CS_data_raw)
 ```
 
 ```{r keep-exploring-the-data-3}
 
 # YOUR CODE HERE
+names(CS_data_raw)
 ```
 
 ```{r keep-exploring-the-data-4}
 
 # YOUR CODE HERE
+head(CS_data_raw)
 ```
 
 **1. In your own words, what do these functions do?**
 
-- `dim()`:
+- `dim()`: dimension of the data table, ie how many columns and rows.
 
-_Type your answer here, replacing this text._
+- `str()`: structure of the data table,    which is very interesting, display various column names, what types of data in there, and a sampling of data in such column!  very neato!
 
-- `str()`:
+- `names()`: display the column heading names ie field names.
 
-_Type your answer here, replacing this text._
+- `head()`: unix head command!  display the first X lines, if X is given as param.
 
-- `names()`:
-
-_Type your answer here, replacing this text._
-
-- `head()`:
-
-_Type your answer here, replacing this text._
 
 **2. Based on these functions' outputs, who/what are the individuals in this dataset? How many of them are there?**
 
-_Type your answer here, replacing this text._
+countries.
 
 \newpage 
 
@@ -140,6 +153,12 @@ CS_data <- NULL # YOUR CODE HERE
 CS_data
 
 # YOUR CODE HERE
+
+
+CS_data = CS_data_raw %>% mutate( CS_rate_100 = CS_rate * 100 ) 
+
+
+
 ```
 
 ```{r}
@@ -152,20 +171,26 @@ CS_data
 
 **4. Which variable groups the countries by income regions?**
 
-_Type your answer here, replacing this text._
+Income_Group
 
 **5. Which variable groups the countries by geographic regions?**
 
-_Type your answer here, replacing this text._
+Region
 
 
 These variables are categorical variables. So far in lecture, we've seen categorical variables stored as `chr` variables when we've examined `str(data)`. However, `Income_Group_order` is stored as a `Factor` variable in this dataset, which is another way to store categorical data. One benefit of storing it as `Factor` is that we can re-order the `Factor` variable in a way that makes sense for plotting and analysis. To see the values and order of a factor variable, we can use the following code.
 
+## Factor  (wk2 Lab video 1 ~10:50)
+
 **STOP: Remove eval = F from this chunk header before continuing on.**
-```{r levels-income, eval = F}
-CS_data %>% pull(Income_Group_order) %>% levels
+```{r levels-income, eval = T}
+##CS_data %>% pull(Income_Group_order)
+
+CS_data %>% pull(Income_Group_order) %>% levels()
 # You won't be tested on writing the line of code above. 
 # Try and understand what the code is showing you.
+
+
 ```
 \newpage 
 
@@ -176,6 +201,28 @@ p6 <- NULL # YOUR CODE HERE
 p6
 
 # YOUR CODE HERE
+
+### i need to bloody do a count before I can plot!
+### ha, geom_bar will do this automagically!
+
+
+## bar chart!  not histogram!
+## x = income group (categories)
+## y = number of countries in the given X
+
+## Lab video 2.1 [12:40]
+
+##CS_data = CS_data_raw %>% group_by(Income_Group) %>% summarize(mean_GDP_2006 = mean(GDP_2006))
+##head(CS_data)
+##?summarize
+###ggplot(CS_data,aes(x=CountryCode, y=GDP_2006)) # + 
+###p6 = ggplot(CS_data,aes(x=Region, y=Income_Group))  +
+p6 = 
+  ggplot(CS_data, aes(x=Income_Group)) + geom_bar()
+  ### geom_bar() is the implicit y-axis,
+  ### here didn't specify stats="identity", so it counted the x axis var (Income_Group)
+
+p6
 ```
 
 ```{r}
@@ -191,6 +238,10 @@ p7 <- NULL # YOUR CODE HERE
 p7
 
 # YOUR CODE HERE
+p7 = 
+ ggplot(CS_data, aes(x = Income_Group_order)) + geom_bar()
+
+p7
 ```
 
 ```{r}
@@ -199,18 +250,20 @@ p7
 
 **8. Do you prefer the plot using `Income_Group` or `Income_Group_order`? Why?**
 
-_Type your answer here, replacing this text._
+Income_Group_order, it is an ordinal variable and should be arranged this way.
 
 **9. Did you use the argument `stat="identity"` in the code to make this bar chart? Why or why not?**
 
-_Type your answer here, replacing this text._
+No i did not, and this is what tricked me!  Didn't fully understand this till watched the Lab video (the precise version, thx!!)
 
 \newpage 
 
 **10. [1 point] Make a bar chart showing the number of countries per geographic region.**
 
-```{r}
+```{r fig.width = 11}
 p10 <- NULL # YOUR CODE HERE
+
+p10 = ggplot(CS_data, aes(x=Region)) + geom_bar()
 p10
 
 # YOUR CODE HERE
@@ -222,11 +275,12 @@ p10
 
 **11. Based on your plot, which world region has the most countries in the dataset?**
 
-_Type your answer here, replacing this text._
+Europe and Central Asia
+
 
 **12. Which geographic region has the fewest number of countries in the dataset?**
 
-_Type your answer here, replacing this text._
+North America
 
 
 **Try changing the fig.width! Note that the code chunks where you made your plots had the chunk option "fig.width = 11". Try changing the setting to a lower number, like 9, and re-running the chunk. Notice how the width of the rendered plot changes. Change it back to 11 so that the x-axis labels don't look too cramped.**
@@ -236,7 +290,12 @@ _Type your answer here, replacing this text._
 **13. [1 point] `GDP_2006` and `CS_rate_100` are quantitative, meaning that we use histograms rather than bar charts to examine their distributions. Using code you learned in class, make a histogram of `GDP_2006`. Pay attention to the message that R outputs when running your code. It is telling you that by default the data is grouped into 30 bins for plotting.**
 
 ```{r}
+
+### x: GDP
+### y: count of countries with the GDP  ---> done by geom_histogram() !  and histogram cuz var is continuous (ie numeric)
+### which is why later used binwidth to adjust x-axis grouping
 p13 <- NULL # YOUR CODE HERE
+p13 = ggplot(CS_data, aes(x=GDP_2006)) + geom_histogram()
 p13
 
 # YOUR CODE HERE
@@ -252,6 +311,10 @@ p13
 
 ```{r}
 p14 <- NULL # YOUR CODE HERE
+
+p14 = ggplot(CS_data, aes(x=GDP_2006)) +
+ geom_histogram( col = "green" , binwidth = 5000 )
+
 p14
 
 # YOUR CODE HERE
@@ -267,6 +330,10 @@ p14
 
 ```{r}
 p15 <- NULL # Redo one of your plots here
+
+p15 = ggplot(CS_data, aes(x=CS_rate_100)) +
+  #geom_histogram( col = "green" )
+ geom_histogram( col = "green" , binwidth = 10 )
 p15
 
 # YOUR CODE HERE
@@ -286,6 +353,14 @@ p15
 
 ```{r, fig.width=11}
 p16 <- NULL # Redo one of your plots here
+p16 = ggplot(CS_data, aes(x=CS_rate_100)) +
+   geom_histogram( col = "orchid1" , fill = "purple",  binwidth = 10 ) +
+  labs(x="Cesarian rate in %",
+       y="Number of countries",
+       title = "Global Cesarian Rate",
+       caption = "Data from PH142 Lab02") + 
+  theme_minimal(base_size=16)  # font size
+
 p16
 
 # YOUR CODE HERE
@@ -312,7 +387,7 @@ which opens a help window in the bottom right pane:
 
 ```{r}
 # YOUR CODE HERE
-
+ggsave( "lab02_cs_plot.png", plot = last_plot())
 # YOUR CODE HERE
 ```
 
