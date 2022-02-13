@@ -432,7 +432,7 @@ five_num_summary2 = CS_data2 %>% summarize( min = Min,
 five_num_summary2
 fns2 = five_num_summary2
 
-p14b <- ggplot(data = CS_data2, aes(y = CS_rate_100)) +
+p14b = ggplot(data = CS_data2, aes(y = CS_rate_100)) +
           geom_boxplot(col = 'black', fill = 'sienna2') +
           theme_minimal() + 
           geom_hline(aes(yintercept = 0.4), col = 'blue') +

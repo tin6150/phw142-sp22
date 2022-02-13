@@ -62,6 +62,9 @@ and make a conclusion to help answer the problem statement.
 insure_data <- NULL 
 insure_data 
 
+insure_data = read.csv("data/insurance.csv", header=T)
+insure_data %>% str
+#insure_data
 # YOUR CODE HERE
 ```
 
@@ -86,7 +89,9 @@ head(insure_data)
 
 ```{r}
 p2 <- NULL
-p2
+#p2 = sum(insure_data)
+#p2 = proportions(insure_data)
+p2 = dim(insure_data)[1]
 
 # YOUR CODE HERE
 ```
@@ -99,7 +104,7 @@ p2
 
 ```{r}
 p3 <- NULL
-p3
+p3 = c("smoker", "sex", "region")
 
 # YOUR CODE HERE
 ```
@@ -112,7 +117,7 @@ p3
 
 ```{r}
 p4 <- NULL
-p4
+p4 = 0
 
 # YOUR CODE HERE
 ```
@@ -125,8 +130,10 @@ p4
 
 ```{r p5}
 p5 <- NULL
-p5
+#XX?? p5 = c("bmi","charges","children")
+p5 = c("bmi","charges")
 
+### they didn't do -ve test for things that should not be in the list?!
 # YOUR CODE HERE
 ```
 
@@ -138,7 +145,10 @@ p5
 
 ```{r p6}
 p6 <- NULL 
-p6
+p6 = c("sex","smoker","region","children")
+
+### A discrete variable is a kind of statistics variable that can only take on discrete specific values. The variable is not continuous
+### then children should not have ben in the continuous 
 
 # YOUR CODE HERE
 ```
@@ -163,13 +173,14 @@ insure_data <- insure_data %>%
 **7. What did the code above accomplish?**
 
 _Type your answer here, replacing this text._
+added a column called bmi_cat that is categorial var for the BMI groups
 
 \newpage
 
 **8. [1 point] What type of variable is `bmi_cat`? Uncomment one of the choices below.**
 
 ```{r p8}
-# p8 <- 'ordinal'
+p8 <- 'ordinal'
 # p8 <- 'nominal'
 # p8 <- 'continuous'
 # p8 <- 'discrete'
@@ -186,7 +197,7 @@ _Type your answer here, replacing this text._
 **9. [1 point] Read the problem statement proposed at the beginning of this exercise. Who belongs to the population of interest? Uncomment one of the choices below.** 
 
 ```{r p9}
-# p9 <- 'Smokers of normal BMI'
+p9 <- 'Smokers of normal BMI'
 # p9 <- 'Smokers of overweight BMI'
 # p9 <- 'Smokers who have abnormal BMI'
 # p9 <- 'All people at risk of high medical charges'
@@ -202,8 +213,8 @@ _Type your answer here, replacing this text._
 
 ```{r p10}
 insure_subset <- NULL 
-insure_subset
-
+insure_subset = insure_data %>% filter(smoker=="yes",bmi_cat=="Normal")
+insure_subset %>% dim
 # YOUR CODE HERE
 ```
 
@@ -217,6 +228,8 @@ insure_subset
 
 ```{r scatter-plot}
 p11 <- NULL
+p11 = ggplot(insure_subset, aes(x=age,y=charges)) + geom_point() +
+  labs(title="age vs insurance charges for smoker with normal bmi")
 p11
 
 # YOUR CODE HERE
@@ -232,10 +245,15 @@ p11
 
 ```{r regression-mod}
 insure_model <- NULL
-insure_model 
-# tidy(insure_model)
+#insure_model = lm(age ~ charges, data=insure_subset)   ### WRONG !:w
+insure_model = lm(charges ~ age, data=insure_subset)    
+### lm( y ~ x )  ... want to predict charges, using age as input.  
 
+tidy(insure_model)
+#insure_model  %>% str
 # YOUR CODE HERE
+insure_model  
+
 ```
 
 ```{r}
@@ -245,14 +263,25 @@ insure_model
 **13. [1 point] Interpret the slope parameter in the context of this problem.**
 
 _Type your answer here, replacing this text._
+slope (m) is 246.1
+so, each each age increase by 1, charge will go up by 246.1
+
+
 
 **14. [1 point] Interpret the intercept parameter.**
 
 _Type your answer here, replacing this text._
+at age 0, the chages would be 10656.1
+
 
 **15. [1 point] Does the intercept make sense in this context?**
 
 _Type your answer here, replacing this text._
+not too much.  newborn either consider incur no charges (is this life insurance?)
+or incur lots of medical charges, till they reach a age eg 5 and young adults when
+they are healthy and incur few medical bills.
+age 0 and 1 would not be smoker, right?  so this model probably invalid for young age.
+
 
 \newpage
 
@@ -260,6 +289,12 @@ _Type your answer here, replacing this text._
 
 ```{r scatter-plot-with-line}
 p16 <- NULL 
+m = insure_model$coefficients[2] # slope  (it is a "named number" in R)
+b = insure_model$coefficients[1] # intercept
+#str(insure_model)
+m
+b
+p16 = p11 + geom_abline(intercept=b,slope=m)
 p16
 
 # YOUR CODE HERE
@@ -274,6 +309,8 @@ p16
 **17. [2 points] What do you notice about the fit of the line in terms of the proportion of points above vs. below the line? Why do you think that is?**
 
 _Type your answer here, replacing this text._
+most points are below the lm() line, 
+few are above, cuz there were a number of large outlier dragging up the average!
 
 \newpage
 
@@ -282,11 +319,16 @@ _Type your answer here, replacing this text._
 ```{r filter-smalller}
 insure_smaller_subset <- insure_subset %>% 
   filter(charges < 30000 & ! (charges > 25000 & age == 20))
+
+dim(insure_subset)[1] - dim(insure_smaller_subset)[1]
+
 ```
 
 **18. [2 points] How many individuals were removed? Who were they?**
 
 _Type your answer here, replacing this text._
+dim(insure_subset)[1] - dim(insure_smaller_subset)[1]
+3, they are the 3 outliers (has large charges, all age 20 per the code of the filter)
 
 \newpage
 
@@ -294,7 +336,8 @@ _Type your answer here, replacing this text._
 
 ```{r second-regression-mod}
 insure_better_model <- NULL
-# tidy(insure_better_model)
+insure_better_model = lm(charges ~ age, data=insure_smaller_subset)
+tidy(insure_better_model)
 
 # YOUR CODE HERE
 ```
@@ -309,8 +352,12 @@ insure_better_model <- NULL
 
 ```{r scatter-two-lines}
 p20 <- NULL # YOUR CODE HERE
-p20
 
+linear_model2 = lm(charges ~ age, data=insure_smaller_subset)
+new_m = linear_model2$coefficients[2] # slope  (it is a "named number" in R)
+new_b = linear_model2$coefficients[1] # intercept
+p20 = p16 + geom_abline(intercept=new_b,slope=new_m,lty=2,col="red")
+p20
 # YOUR CODE HERE
 ```
 
@@ -323,8 +370,12 @@ p20
 **21. [1 point] Calculate the r-squared value for `insure_model` and assign this value to `insure_model_r2`.**
 
 ```{r rsquared}
+library(dplyr)
+library(broom)
 insure_model_r2 <- NULL
-insure_model_r2
+#XXinsure_model_r2 = insure_model %>% summarize( rrr2 =  cor(age,charges) )
+insure_model_r2 = glance(insure_model) %>% pull(r.squared)
+insure_model_r2   #++FIXME++
 
 # YOUR CODE HERE
 ```
@@ -337,6 +388,13 @@ insure_model_r2
 
 ```{r rsquared2}
 insure_better_model_r2 <- NULL 
+### oh was i supposed to calculate by hand for above??
+insure_better_model_r  = sqrt( glance(insure_better_model) %>% pull(r.squared) )
+insure_better_model_r
+
+insure_better_model_r2 =       glance(insure_better_model) %>% pull(r.squared) 
+
+##insure_better_model_r2 = insure_better_model_r  ## NOPE.  grader wants the r.squared value, variable is named r2 anyway... 
 insure_better_model_r2
 
 # YOUR CODE HERE
@@ -352,6 +410,15 @@ insure_better_model_r2
 
 ```{r correlations}
 p23 <- NULL
+
+#// lm( charges ~ age, data=insure_subset ) #
+
+#// #%>%  = sqrt( glance(insure_better_model) %>% pull(r.squared) )
+
+p23 = insure_subset %>% summarize( corr = cor(age,charges) , corr_sq = corr^2 )
+#XX p23 = c( cor, cor^2 )
+
+
 p23
 
 # YOUR CODE HERE
@@ -365,8 +432,12 @@ p23
 
 ```{r correlations2}
 p24 <- NULL
-p24
+p24 = insure_smaller_subset %>% summarize( corr = cor(age,charges) , corr_sq = corr^2 )
 
+
+##xx tmpp24 = insure_smaller_subset %>% cor(age,charges)
+
+p24
 # YOUR CODE HERE
 ```
 
@@ -381,8 +452,14 @@ p24
 **25. [1 point] Make a new dataframe called `insure_smokers` that includes smokers of any BMI from the original `insure_data` dataset.**
 
 ```{r}
+#insure_subset = insure_data %>% filter(smoker=="yes",bmi_cat=="Normal")
+#insure_subset %>% dim
+#dim( insure_data )
+
 insure_smokers <- NULL
-insure_smokers
+insure_smokers = insure_data %>% filter(smoker=="yes")
+
+#dim(insure_smokers)
 
 # YOUR CODE HERE
 ```
@@ -395,10 +472,27 @@ insure_smokers
 
 **26. [1 point] Make a scatterplot that examines the relationship between `age` and `charges` for normal, overweight, and obese individuals in three side by side plots. A `facet_` command may help you.**
 
-```{r ggplot-by-bmi}
-p26 <- NULL 
-p26
 
+~~~~
+HW03 
+p8 <- ggplot(data = CS_data, aes(x = CS_rate_100)) +
+        geom_histogram(binwidth = 6, col = 'white', fill = 'sienna2') + 
+        xlab('Cesarean delivery rate (%)') +
+        theme_minimal() #+
+
+p8 = p8 + facet_wrap(~Income_Group)
+
+
+```{r ggplot-by-bmi}
+
+## facet_wrap
+library(ggplot2)
+p26 <- NULL 
+p26 = ggplot(data=insure_smokers, aes(x=age,y=charges)) + 
+  geom_point() + theme_minimal()
+
+p26 = p26 + facet_wrap(~bmi_cat)
+p26
 # YOUR CODE HERE
 ```
 
@@ -421,6 +515,9 @@ insure_smokers <- insure_smokers %>%
 p27 <- NULL
 p27
 
+p27 = ggplot(data=insure_smokers, aes(x=age,y=charges)) +   geom_point() + theme_minimal()
+p27 = p27 + facet_wrap(~bmi_cat_ordered)
+p27
 # YOUR CODE HERE
 ```
 
@@ -440,17 +537,51 @@ p27
 # '<<<<YOUR CODE HERE>>>>'
 # '<<<<YOUR CODE HERE>>>>'
 
+insure_smokers
+#insure_data_normal = insure_data %>% filter(bmi_cat=="Normal") 
+#insure_data_obese  = insure_data %>% filter(bmi_cat=="Obese") 
+#insure_data_overweight  = insure_data %>% filter(bmi_cat=="Overweight") 
+insure_data_normal = insure_smokers %>% filter(bmi_cat=="Normal") 
+insure_data_obese  = insure_smokers %>% filter(bmi_cat=="Obese") 
+insure_data_overweight  = insure_smokers %>% filter(bmi_cat=="Overweight") 
+
+
+
+str(insure_data_normal)
+str(insure_data_obese)
+str(insure_data_overweight)
+
+#View(insure_data_normal)
 ## generate your models
 
 normal_mod <- '<<<<YOUR CODE HERE>>>>'
 overweight_mod <- '<<<<YOUR CODE HERE>>>>'
 obese_mod <- '<<<<YOUR CODE HERE>>>>'
 
+
+normal_mod <- lm(charges ~ age, data=insure_data_normal)
+obese_mod <- lm(charges ~ age, data=insure_data_obese)
+overweight_mod <- lm(charges ~ age, data=insure_data_overweight)
+
+obese_mod
+
+## somehow they expect slightly different result than what my code found...
+## why?
+## was I supposed to remove outlier?  they didn't say that... 
+## she wanted the smokers data only... insure_smokers
+#XX normal_mod$coefficients[[2]] = 246.1376
+#XXobese_mod$coefficients[[2]] = 281.1528
+
 ## tidy your models
 
 # '<<<<YOUR CODE HERE>>>>'
 # '<<<<YOUR CODE HERE>>>>'
 # '<<<<YOUR CODE HERE>>>>'
+tidy(normal_mod)
+tidy(overweight_mod)
+tidy(obese_mod)
+
+normal_mod$coefficients[2]
 
 # YOUR CODE HERE
 ```
@@ -466,9 +597,15 @@ obese_mod <- '<<<<YOUR CODE HERE>>>>'
 **29. [1 point] Predict the medical charges for a 20 year old with a normal BMI.**
 
 ```{r p29}
-p29 <- NULL
-p29 
 
+## likely want the y = a + bx thing
+a = normal_mod$coefficients[[1]]  # intercept
+b = normal_mod$coefficients[[2]]  # slope
+x = 20
+y = a + b*x
+p29 <- NULL
+p29  = y
+p29
 # YOUR CODE HERE
 ```
 
@@ -479,7 +616,17 @@ p29
 **30. [1 point] Predict the medical charges for a 20 year old with an overweight BMI.**
 
 ```{r p30}
+
+#aow = overweight_mod$coefficients[1]  # intercept  ## using this end up in a extra data structure layer that the grader don't accept
+aow = overweight_mod$coefficients[[1]]  # intercept
+bow = overweight_mod$coefficients[[2]]  # slope
+xow = 20
+yow = aow + bow*x
+
+#overweight_mod$coefficients[3]
+
 p30 <- NULL
+p30 = yow
 p30
 
 # YOUR CODE HERE
@@ -494,7 +641,13 @@ p30
 ```{r p31}
 p31 <- NULL
 p31 
+aob = obese_mod$coefficients[[1]]  # intercept
+bob = obese_mod$coefficients[[2]]  # slope
+xob = 20
+yob = aob + bob*x
 
+p31 = yob
+p31
 # YOUR CODE HERE
 ```
 
@@ -506,6 +659,25 @@ p31
 **32. [3 points] In three sentences maximum, comment on (1) the direction of the association, (2) how much the slopes vary across the BMI groups, and (3) how much the predicted medical charges for a 20-year old varies by BMI category.**
 
 _Type your answer here, replacing this text._
+
+
+ (1) the direction of the association, 
+   _monotonically increasing from normal to overweight to obese_
+   
+ (2) how much the slopes vary across the BMI groups, 
+    _slope increases steadily from normal to overweight to obese, first by 1.16 times, then by 2.46 times_
+
+ (3) how much the predicted medical charges for a 20-year old varies by BMI category.
+   _charges increases from normal to overweight to obese_
+
+```{r}
+### aob = obese_mod$coefficients[[1]]  # intercept
+c(aow/a, aob/aow)
+
+c(a, aow, aob)
+c(y, yow, yob)
+
+```
 
 ## END
 

@@ -1,6 +1,6 @@
 ---
 title: "Lab 3: Relationship between global cesarean delivery rates and GDP"
-author: "Your name and student ID"
+author: "Tin Ho, tin@berkeley.edu"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: pdf_document
 ---
@@ -45,6 +45,18 @@ p1 <- NULL # YOUR CODE HERE
 p1
 
 # YOUR CODE HERE
+
+tmp1 = ggplot(CS_data, aes( x=CS_rate_100, y=GDP_2006) ) + geom_line() + geom_point() +
+  theme_minimal(base_size=14)
+#tmp1
+
+tmp2 = ggplot(CS_data, aes( y=CS_rate_100, x=GDP_2006) ) + geom_line() + geom_point() +
+  theme_minimal(base_size=14)
+#tmp2
+
+p1 = ggplot(CS_data, aes( y=CS_rate_100, x=GDP_2006) ) + geom_point() 
+p1
+
 ```
 
 ```{r}
@@ -61,6 +73,10 @@ In your plot, you might notice that many of the points are condensed towards the
 CS_data_log <- NULL # YOUR CODE HERE
 CS_data_log
 
+#View(CS_data)
+CS_data_log <- CS_data %>% mutate(log_CS=log(CS_rate_100,exp(1)), log_GDP=log(GDP_2006))
+#View(CS_data_log)
+
 # YOUR CODE HERE
 ```
 
@@ -75,6 +91,8 @@ CS_data_log
 p3 <- NULL # YOUR CODE HERE
 p3
 
+p3 = ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point() 
+p3
 # YOUR CODE HERE
 ```
 
@@ -88,8 +106,9 @@ p3
 
 ```{r add-smoothed-curve}
 p4 <- NULL # YOUR CODE HERE
-p4
+p4 = p3 + geom_smooth()
 
+p4
 # YOUR CODE HERE
 ```
 
@@ -100,6 +119,8 @@ p4
 **5. Does the relationship between logged GDP and logged CS look linear?**
 
 _Type your answer here, replacing this text._
+Not quite, it was linear up to a point, then plateau out. 
+Was this called a threshold level relationship?
 
 \newpage 
 
@@ -109,7 +130,18 @@ _Type your answer here, replacing this text._
 p6 <- NULL # YOUR CODE HERE
 p6
 
+### lab video 2 [18:28]
+aes(col=Income_Group)
 # YOUR CODE HERE
+###p3 = ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point() 
+###p6 = ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point() 
+
+#p6 = p4 + aes(col=Income_Group)
+#p6 = p3 + aes(col=Income_Group) + geom_smooth()
+
+p6 = ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point(aes(col=Income_Group)) + geom_smooth() 
+p6
+
 ```
 
 ```{r}
@@ -118,6 +150,7 @@ p6
 Does a linear relationship hold for any part of the data? What pattern do you notice?
 
 _Type your answer here, replacing this text._
+It holds for the low income group.
 
 \newpage
 
@@ -127,7 +160,12 @@ _Type your answer here, replacing this text._
 CS_data_sub <- NULL # YOUR CODE HERE
 CS_data_sub
 
+### lab video 2 @ 25:12
 # YOUR CODE HERE
+CS_data_sub = CS_data_log %>% filter( Income_Group %in% c("Low income","Lower middle income","Upper middle income") )
+#dim(CS_data)
+#dim(CS_data_sub)
+
 ```
 
 ```{r}
@@ -141,7 +179,8 @@ CS_data_sub
 ```{r scatter-low-mid}
 p8 <- NULL # YOUR CODE HERE
 p8
-
+p8 = ggplot(CS_data_sub, aes( y=log_CS, x=log_GDP) ) + geom_point(aes(col=Income_Group)) + geom_smooth() 
+p8
 # YOUR CODE HERE
 ```
 
@@ -155,6 +194,15 @@ p8
 p9 <- NULL # YOUR CODE HERE
 p9
 
+### 30:40
+
+lin_mod =  lm(log_CS ~ log_GDP, data=CS_data_sub)
+##p9 = ggplot(lin_mod, aes( y=log_CS, x=log_GDP) )
+#XXtmp9 = tidy(lin_mod)
+#XXtmp9
+#XXp9 = ggplot(tmp9, aes( y=log_CS, x=log_GDP))
+p9 = lin_mod
+p9
 # YOUR CODE HERE
 ```
 
@@ -165,15 +213,34 @@ p9
 **10. Interpret the slope estimate in the context of the problem.**
 
 _Type your answer here, replacing this text._
-
+slope is 0.8183, which means that, at the natural log scale, an increase of 1 unit in the GDP corresponds to an increase of 0.8 in the log(%Cesarean) rate.  exact number would need to raise with exponent e.  eg exp(y)
 
 **11. Estimate what the cesarean delivery rate would be for a country with a GDP of 2000. Outline the steps you take to calculate your answer and provide an interpretation. Round your final answer to one decimal place.**
 
 _Type your answer here, replacing this text._
+y = mx + b
+m = 0.8193     ### m aka b in this class
+x = log(2000)
+b = -3.9405
+y = m*x + b
+y is 2.286919,
+so CS rate is exp(y), which becomes 9.84%
+
+
 
 **12. Is it appropriate to use the model to predict the cesarean delivery rate for a country with a GDP of 50,000? Why or why not? Based on the relationship in the full dataset, would you expect the linear model to over- or under-predict?**
 
 _Type your answer here, replacing this text._
+GDP of 50,000 would be in the upper income level, which the model was not linear.
+From what we have seen, it has plateaus out.
+If we use the linear fit, the line would be much higher, way over-estimating CS rate.
+
+as eg, let's plug in the values.
+xx = log(50000)
+y = m*xx + b 
+y become 4.91, exp(y) becomes 137.57%, which is impossible :D
+
+### y=exp(m*xx+b) for CS in %
 
 \newpage
 
