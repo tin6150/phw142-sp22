@@ -509,3 +509,173 @@ _Type your answer here, replacing this text._
 
 ## END
 
+
+
+
+Exam 1 review concept slide 21
+
+```{r}
+
+OFC1=c(.379,4.1,2.01,12.6,4.98,1.92)
+OFC2=c(6.31,7.94, 9.46,11.0, 11.1, 8.9)
+##XXOFCdata = as.array(matrix( data=c(OFC1, OFC2), ncol = 2))
+OFCdata = data.frame(OFC1,OFC2)
+
+#### matrix isn't a dataframe :-\
+
+## 
+OFCdata
+fit = lm(OFC1 ~ OFC2, data=OFCdata)
+library(broom)
+tidy(fit)
+
+
+```
+```{r}
+
+rev1 = ggplot(data=OFCdata, aes(x=log(OFC1), y=OFC2)) + geom_point()
+rev1
+```
+
+```{r}
+x=40.14
+m=2.09
+c=6.03
+y=m*x+c
+y    # 89.9226
+
+```
+
+
+#### practice mideter sp21-mt1
+
+```{r}
+
+m=0.035
+c=8.1
+x=50000
+y=m*x+c
+y              # 1758.1
+
+
+#OFCdata = data.frame(OFC1,OFC2)
+
+
+#data.frame()
+
+#filter( var == "True")
+
+#!pwd
+##q9df = read.csv("/mnt/c/Users/tin61/tin-gh/inet-dev-class/r_stat142/exam/simpleDF.csv")
+q9df = read.csv("c:/Users/tin61/tin-gh/inet-dev-class/r_stat142/exam/simpleDF.csv")
+#system("uptime")
+czs_tin = q9df %>% filter(status=="True") %>% group_by(zip) %>% tally()
+czs_tin
+q9df  
+  # summarize( count_zip_status = count() )
+
+##q9df %>% group_by(zip) %>% summarize( count_zip_status = filter(status=="True"))
+
+
+## ++ where is the count thing... there was a simpler way in R ++ ...
+
+lung_data = q9df %>% rename(zip_code = zip)
+
+#solution answer:
+count_zip_status <- lung_data %>% group_by(zip_code) %>% summarize(count = sum(boolero))
+count_zip_status
+
+czs = lung_data %>% count()
+czs = lung_data %>% group_by(zip_code) %>% count()
+czs
+czs2 = lung_data %>% group_by(zip_code) %>% summarize( nnn = count() )
+
+count_zip_status <- lung_data %>% group_by(zip_code) %>% summarize(cuenta = tally(status==TRUE))
+
+```
+
+
+```{bash}
+#cd ../..
+pwd
+ls
+date
+uptime
+hostname
+#cd tests
+```
+```{r}
+
+foo=NA
+foo
+
+bar=T
+bar
+
+baz=TRUE
+baz
+
+# next one error, True is not found, if text, need quote.
+bazz=True
+bazz
+
+is.na(foo)
+
+baz==bar
+
+```
+
+##more playground stuff
+
+```{r}
+
+xq1=95; mq1=.0651; cq1=3.87
+yq1 = exp(mq1*xq1+cq1)
+yq1
+
+
+yq1p = exp(mq1*81+cq1)
+yq1p
+
+
+
+yq1p = exp(mq1*60+cq1)
+yq1p
+
+yq1_preln = mq1*60+cq1
+yq1_preln
+exp(yq1_preln)
+```
+## SPH
+
+## region department admits
+## 1 International Epibio 245
+## 2 West US Epibio 241
+## 3 Midwest US Epibio 235
+## 4 South US Epibio 233
+## 5 Northeast US Epibio 240
+## 6 International Community Health 230
+## 7 West US Community Health 226
+## 8 Midwest US Community Health 219
+## 9 South US Community Health 216
+## 10 Northeast US Community Health 222
+## 11 International Health Policy 145
+## 12 West US Health Policy 142
+## 13 Midwest US Health Policy 136
+## 14 South US Health Policy 132
+## 15 Northeast US Health Policy 130
+## 16 International Infectious Diseases 465
+## 17 West US Infectious Diseases 491
+## 18 Midwest US Infectious Diseases 461
+## 19 South US Infectious Diseases 460
+## 20 Northeast US Infectious Diseases 472
+
+
+```{r}
+
+WUS=241+226+142+491
+WUS
+tot=5341
+WUS_PERCENT=WUS/tot*100
+WUS_PERCENT
+```

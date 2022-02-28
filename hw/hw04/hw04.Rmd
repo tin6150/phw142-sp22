@@ -1,9 +1,18 @@
 ---
 title: "Problem Set 4: Random Variables, Probability, and Screening Properties"
-author: "Your name and student ID"
+author: "sn50 id=tbd 2022-0223  
+                         
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: pdf_document
 ---
+
+
+_due 02-22 late cuz of midterm, but not graded anyway_ 
+
+simulation... prob...
+my notes from wk5Adon't have lots of R fn... 
+wtf?
+
 
 **Run this chunk of code to load the autograder package!**
 ```{r setup, include = FALSE}
@@ -12,7 +21,7 @@ library(testthat)
 ```
 
 ### Instructions 
-* Solutions will be released on Tuesday, February 22nd.
+* Solutions will be released on _Tuesday, February 22nd._
 * This semester, problem sets are for practice only and will not be turned in for marks.
 
 Helpful hints:
@@ -38,7 +47,13 @@ model. *Knit now* to see how this table is rendered in your PDF.
 | yadi     | more stuff   | Y     |
 | yada     | etc          | Z     |
 
-_Type your answer here, replacing this text._
+_what does table has to do with this answer??!!_
+_wasn't this a code problem?  why prose answer??!!_
+
+#birth_defect=pnorm(n=100,mean=1/33,sd=1)
+#wait, not the pregnancy length q in HW05...
+#what do they want??
+
 
 \newpage
 
@@ -54,7 +69,7 @@ set.seed(100)
 
 ```{r simulate-200-births}
 sim_01 <- NULL # YOUR CODE HERE
-sim_01
+sim_01 = rnorm(n=200, meean=0)  ## no, mean and sd not provided
 ```
 
 ```{r}

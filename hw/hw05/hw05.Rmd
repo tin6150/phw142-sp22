@@ -1,6 +1,6 @@
 ---
 title: "Homework 5: Normal and Binomial Distributions"
-author: "Your name and student ID"
+author: "sn50 id... 2022-0223"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: pdf_document
 ---
@@ -13,7 +13,7 @@ library(testthat)
 ```
 
 ### Instructions 
-* Solutions will be released on Tuesday, March 1st.
+* Solutions will be released on _Tuesday, March 1st._
 * This semester, homework assignments are for practice only and will not be turned in for marks.
 
 Helpful hints:
