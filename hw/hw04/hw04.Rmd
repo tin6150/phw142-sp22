@@ -1,9 +1,41 @@
 ---
 title: "Problem Set 4: Random Variables, Probability, and Screening Properties"
-author: "Your name and student ID"
+author: "sn50 id=tbd 2022-0223  
+                         
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: pdf_document
 ---
+
+
+
+_due 02-22 late cuz of midterm, but not graded anyway_ 
+
+//sn50//  better off save file as hw04sn50.Rmd and leave it in main instead of branching
+// the sync will eventually make me get into conflict and stuff...
+simulation... prob...
+my notes from wk5Adon't have lots of R fn... 
+wtf?
+
+
+
+//sn50// could not get grader to work at home, moved to use datahub 
+
+```{r}
+# quiz04 in wk6
+
+pnorm(q=253,mean=145,sd=36,lower.tail=T)
+
+pnorm(q=253,mean=145,sd=36,lower.tail=F)
+```
+
+# quiz04 in wk6
+sensitivity : P(T+|D+) : 245/310 = 79.03%
+specificity : P(T-|D-) : 879/959 = 91.66%
+NPV : P(D-|T-) : 879/944 = 93.11%
+PPV : P(D+|T+) : 245/325 = 75.38%
+  
+
+
 
 **Run this chunk of code to load the autograder package!**
 ```{r setup, include = FALSE}
@@ -12,7 +44,7 @@ library(testthat)
 ```
 
 ### Instructions 
-* Solutions will be released on Tuesday, February 22nd.
+* Solutions will be released on _Tuesday, February 22nd._
 * This semester, problem sets are for practice only and will not be turned in for marks.
 
 Helpful hints:
@@ -38,9 +70,22 @@ model. *Knit now* to see how this table is rendered in your PDF.
 | yadi     | more stuff   | Y     |
 | yada     | etc          | Z     |
 
-_Type your answer here, replacing this text._
+
+
+
+| Birth Defect  |      BD      |  noBD |
+|=====----------|--------------|-------|
+| prob          | 1/33=30.30%  | 100-30.30= 69.70%    |
+
+
+_what does table has to do with this answer??!!_
+_wasn't this a code problem?  why prose answer??!!_
+cuz table  is what they mean by "probability model" *sigh* 
+_sample space is discrete, cuz it is counting number of birth defect_    #correct
+
 
 \newpage
+
 
 **2. [2 points] Simulate data that equals 0 if there is no birth defect and equals 1 if there is a birth defect. Simulate this data for 200 births at a local hospital. Be sure to use the risk of birth defect from part a). Assign your simulated output the name `sim_01`. Print your simulated births to the screen.**
 
@@ -54,7 +99,26 @@ set.seed(100)
 
 ```{r simulate-200-births}
 sim_01 <- NULL # YOUR CODE HERE
+#sim_01 = rnorm(n=200, meean=0)  ## no, mean and sd not provided.  NOT normal dist, binomial!  wk6 material!  never mind it says hw04.... and assigned last week?!?! *sigh*
+
+birth_id = 1:200
+bd = c( rep(1,ceiling(200*.3030)), rep(0,200*.6970))
+bd
+sim_01sn = data.frame(birth_id, bd)
+str(sim_01sn)            
+sim_01 = rbinom(n=200,size=1,prob=0.3030)  # think of the rbinom as "200 choose 1, with prob of 30.30%"
+?rbinom()
+
+## lecture did NOT cover rbinom!!
+
+sim_01 <- rbinom(200, 1, prob = 1/33)
+str(sim_01)   
 sim_01
+
+## need to setwd("~/tin-gh/phw142-sp22/hw/hw04")
+## before autograder works?!
+## can't get wombat Rstudio to work... 
+## so have to use datahub...
 ```
 
 ```{r}
