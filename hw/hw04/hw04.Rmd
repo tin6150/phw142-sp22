@@ -94,7 +94,7 @@ sim_01 = rbinom(n=200,size=1,prob=0.3030)  # think of the rbinom as "200 choose 
 
 ## lecture did NOT cover rbinom!!
 
-sim_01 <- bd
+#sim_01 <- bd
 sim_01
 class(sim_01)
 class(bd)
@@ -128,6 +128,12 @@ sim_01 <- sim_01 %>% rename(birth_defect = sim_01)
 output_01 <- NULL # YOUR CODE HERE
 output_01
 
+output_01 = sim_01 %>%  summarize( numBd = sum(birth_defect), proportionBd = mean(birth_defect))
+# 71, .355
+# 56, .28
+
+
+
 ```
 
 ```{r}
@@ -152,6 +158,23 @@ sim_05 <- 'YOUR ANSWER HERE'
 output_05 <- 'YOUR ANSWER HERE'
 output_05
 
+
+
+sim_02 = rbinom(n=200,size=1,prob=0.3030) 
+sim_03 = rbinom(n=200,size=1,prob=0.3030)  
+sim_04 = rbinom(n=200,size=1,prob=0.3030)  
+sim_05 = rbinom(n=200,size=1,prob=0.3030)  
+str(sim_02)
+output_02 = as.data.frame(sim_02) %>% rename(birth_defect = sim_02) %>%  summarize( numBd = sum(birth_defect), proportionBd = mean(birth_defect))
+output_03 = as.data.frame(sim_03) %>% rename(birth_defect = sim_03) %>%  summarize( numBd = sum(birth_defect), proportionBd = mean(birth_defect))
+output_04 = as.data.frame(sim_04) %>% rename(birth_defect = sim_04) %>%  summarize( numBd = sum(birth_defect), proportionBd = mean(birth_defect))
+output_05 = as.data.frame(sim_05) %>% rename(birth_defect = sim_05) %>%  summarize( numBd = sum(birth_defect), proportionBd = mean(birth_defect))
+
+str(output_02)
+
+
+
+
 ```
 
 ```{r}
@@ -164,8 +187,14 @@ output_05
 
 ```{r, problem-5}
 p5 <- c('YOUR ANSWER HERE')
-p5
+#p5 = c(output_01, output_02, output_03, output_04, output_05)
+p5 = sort( c(output_01$proportionBd, output_02$proportionBd, output_03$proportionBd, output_04$proportionBd, output_05$proportionBd) )
+#p5 = sort(tmp5)
+#p5 = c(sim_02, sim_02, sim_03, sim_04, sim_05)
 
+
+str(p5)
+#str(sim_02)
 ```
 
 ```{r}
@@ -176,13 +205,13 @@ p5
 
 **6. [1 point] Did you get close to the true value? Explain why there is variation in the proportions across the simulations.**
 
-_Type your answer here, replacing this text._
+_somewhat close, but fluctuated more than i expected, making go back to see if the code was buggy._
 
 \newpage
 
 **7. [1 point] Suppose that rather than simulating 5 samples of size 200, we simulated 5 samples of size 1000. In 1-2 sentences, how would you expect the group of proportion estimates from the question above to be different? Comment both on the accuracy of these values at predicting the true value and their variance. If you're not sure, you can re-run your simulation with a larger sample size and see how the results change to deduct the difference.**
 
-_Type your answer here, replacing this text._
+_I expect the simulation with 1000 elements to produce closer to the 30.30% proportion, with fewer variance.  size matter, especially sample size!_
 
 \newpage
 
@@ -204,6 +233,15 @@ References for these stats:
 p8 <- c('YOUR ANSWER HERE')
 p8
 
+# **8. [2 points] Calculate the probability that a randomly chosen American will have HIV. 
+# Then calculate the probability that a randomly chosen American will have HCV. 
+# Convert to percentages and round to two decimal places. Save the HIV and HCV probabilities (without the %) to the vector called `p8`.**
+
+#rbinom(n=321000000,size=1, prob=1100000/321000000)
+prob_hiv=1100000/321000000
+prob_hcv=3500000/321000000
+p8 = c(prob_hiv, prob_hcv )
+p8
 ```
 
 ```{r}
