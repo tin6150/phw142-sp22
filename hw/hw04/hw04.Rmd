@@ -5,6 +5,12 @@ date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: pdf_document
 ---
 
+
+//sn50// could not get grader to work at home, moved to use datahub 
+
+
+
+
 **Run this chunk of code to load the autograder package!**
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -18,6 +24,8 @@ library(testthat)
 Helpful hints:
 
 - Every function you need to use was taught during lecture! So you may need to revisit the lecture code to help you along by opening the relevant files on Datahub. Alternatively, you may wish to view the code in the condensed PDFs posted on the course website. Good luck!
+
+#### no it is not,  nowhere did i see rbinom !!
 
 - Knit your file early and often to minimize knitting errors! If you copy and paste code for the slides, you are bound to get an error that is hard to diagnose. Typing out the code is the way to smooth knitting! We recommend knitting your file each time after you write a few sentences/add a new code chunk, so you can detect the source of knitting errors more easily. This will save you and the GSIs from frustration! 
 
@@ -40,6 +48,13 @@ model. *Knit now* to see how this table is rendered in your PDF.
 
 _Type your answer here, replacing this text._
 
+| Birth Defect  |      BD      |  noBD |
+|=====----------|--------------|-------|
+| prob          | 1/33=30.30%  | 100-30.30= 69.70%    |
+
+_sample space is discrete, cuz it is counting number of birth defect_    #correct
+
+
 \newpage
 
 **2. [2 points] Simulate data that equals 0 if there is no birth defect and equals 1 if there is a birth defect. Simulate this data for 200 births at a local hospital. Be sure to use the risk of birth defect from part a). Assign your simulated output the name `sim_01`. Print your simulated births to the screen.**
@@ -55,6 +70,37 @@ set.seed(100)
 ```{r simulate-200-births}
 sim_01 <- NULL # YOUR CODE HERE
 sim_01
+
+sim_01 <- rbinom(200, 1, prob = 1/33)
+str(sim_01)   
+sim_01
+
+?integer
+birth_id = 1:200
+bd = c( rep( integer(1),ceiling(200*.3030) )      )#, 
+bd = bd +       rep( integer(0),        200*.6970  )   
+bd
+bd =       rep( 1,ceiling(200*.3030) )      
+bd = bd +  rep( 0,        200*.6970  )   
+bd
+
+# interger won't work.  rep create a lists/vector, which is why is numeric
+
+str(bd)
+sim_01sn = data.frame(birth_id, bd)
+str(sim_01sn)            
+sim_01 = rbinom(n=200,size=1,prob=0.3030)  # think of the rbinom as "200 choose 1, with prob of 30.30%"
+?rbinom()
+
+## lecture did NOT cover rbinom!!
+
+sim_01 <- bd
+sim_01
+class(sim_01)
+class(bd)
+expect_true("integer" == class(sim_01))     # sim_01 via rbinom() is integer *sigh()
+expect_true("integer" == class(bd))         # somehow bd is not integer!?!?
+class(bd)
 ```
 
 ```{r}
@@ -70,6 +116,8 @@ library(dplyr)
 sim_01 <- as.data.frame(sim_01) # watch what happens to sim_01 in your environment
 names(sim_01) # prints the variable names in the sim_01 data frame
 sim_01 <- sim_01 %>% rename(birth_defect = sim_01)
+
+#View(sim_01)
 ```
 
 \newpage
