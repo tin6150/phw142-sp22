@@ -238,8 +238,9 @@ p8
 # Convert to percentages and round to two decimal places. Save the HIV and HCV probabilities (without the %) to the vector called `p8`.**
 
 #rbinom(n=321000000,size=1, prob=1100000/321000000)
-prob_hiv=1100000/321000000
-prob_hcv=3500000/321000000
+
+prob_hiv=round(1100000/321000000*100,2)
+prob_hcv=round(3500000/321000000*100,2)
 p8 = c(prob_hiv, prob_hcv )
 p8
 ```
@@ -252,9 +253,44 @@ p8
 
 **9. [2 points] Without using the total number of individuals with co-infections (300,000), calculate the probability that someone will have both HIV and HCV. Convert your answer to a percentage rounded to two decimal places and save it to the object called `p9`.**
 
+
+oh, can use this fact:
+  Among individuals with HIV, approximately 25% have Hepatitis C.
+
+so, P(HCV|HIV)=25%
+
+Bayes theorem provides
+P(HCV|HIV) = P(HIV|HCV) * P(HIV) / P(HCV)
+rearrange:
+P(HCV|HIV) / P(HIV|HCV) = P(HCV)/P(HIV)
+nah, don't need Bayes.  just def of cond prob.
+
+P(HCV|HIV)=P(HCV & HIV)/ P(HIV)
+thus
+P(HCV & HIV) = P(HCV|HIV) * P(HIV)
+             = 0.25       * frac_hiv  = ... 0.09%
+
+want:
+P(HIV intersect HCV) 
+which is
+P(HIV) * P(HCV)
+
 ```{r p9}
 p9 <- NULL # YOUR CODE HERE
+
+frac_hiv = 1100000/321000000
+frac_hcv = 3500000/321000000
+tmp9 = frac_hiv * frac_hcv
+tmp9 * 100
+p9 = round( tmp9 * 100, 2 )
 p9
+
+frac_hcv_given_hiv = 0.25
+
+p9 = round(0.25 * frac_hiv * 100, 2)    # 0.09%, answer from solution pdf
+p9
+
+300000/321000000
 
 ```
 
@@ -266,24 +302,55 @@ p9
 
 **10. [2 points] Are HIV and HCV infections independent? Uncomment your selection.**
 
+
+
+
 ```{r p10}
 # p10 <- 'independent'
-# p10 <- 'not independent'
+p10 <- 'not independent'
 
 ```
 
 ```{r}
 . = ottr::check("tests/p10.R")
 ```
-_Type your answer here, replacing this text._
+
+_if independent, then Prob(HIV intersect HCV) is empty. but research has found that it is not, which is why was given the value 300,000_
+
 
 \newpage
 
 **11. [2 points] In general, does P(A|B) equal P(B|A)? Calculate P(HIV | HCV) and report whether or not it is equal to P(HCV | HIV).**
 
+
+if they were independent, then would be the same.  but they are not independent.
+
+P(A|B) = P(AB) / P(B)
+
+P(HCV | HIV ) = P(HCV & HIV) / P( HIV ) 
+
+```{r}
+(frac_hcv * frac_hiv) / frac_hiv
+frac_hcv
+
+# p9 is P(HIV intersect HCV) 
+
+frac_hcv_given_hiv = 0.25
+frac_hcv_and_hiv = frac_hcv_given_hiv * frac_hiv
+frac_hcv_and_hiv # 0.000856
+
+frac_hiv_given_hcv = frac_hcv_and_hiv / frac_hcv
+frac_hiv_given_hcv # 0.078    which differ from frac_hcv_given_hiv (0.25)  thus they are not generally the same
+
+## head is spinning, need to write math in paper!
+
+```
 _Type your answer here, replacing this text._
 
 \newpage
+
+
+//++sn50++ stopped here 2022.0228 1140pm
 
 ## Part 3: Screening for Lung Cancer
 
@@ -295,7 +362,12 @@ Lung cancer is a leading cause of cancer-related deaths in the United States. Re
 
 **12. [3 points] Use probability notation to express the three probabilities cited. Make sure to define each event using a capital letter (or two capital letters). What do the 89% and 93% values represent?**
 
-_Type your answer here, replacing this text._
+
+_C: Lung Cancer in a given year_
+_S: Heavy Smoker_
+_P(C|S)=3%     ... Hmm, solution only use P(C)=0.03_
+_Sensitivity: P(T+|C+)=89%  This indicate those who have Lung Cancer and correctly test +ve _
+_Specifity:   P(T-|C-)=93%  Those that don't have cancer and correctly get -ve test result._
 
 \newpage
 
@@ -304,6 +376,51 @@ _Type your answer here, replacing this text._
 _Type your answer here, replacing this text._
 
 *Note: If you are writing your solutions in R markdown you may want to upload an image of a hand-drawn tree diagram (this is optional). If so, use the following code. Be sure to remove the option "eval = F" if using this code or it won't run when you knit the file!*
+
+
+what's target pop?  Heavy smoker?  or adults older than X years?
+need to read the book?  
+
+2x2  | C+       | C- |
+-----|----------|----|
+T+   | 89% =  
+T-   |          | 93% |
+
+
+
+
+2x2   | C+       | C-  | margin |
+------|----------|-----|--------|
+T+    |   26.7   | 67.9|  94.6  |        
+T-    |    3.3   |902.1| 905.4  |
+margin|   30     |970  |1000    |
+
+
+P(T+) = 94.6/100 = 0.946 ie 9.46% will test +ve in this pop.
+
+
+study = medicare enrolled heavy smoker
+
+         /-- T+
+       C+
+     /   \-- T-
+study 
+     \    /---- T+
+       C- 
+          \---- T-  
+
+Actually, looking at asnwer in Q15, seems should have done T as first leve, then C as second level.  thus:
+
+         /-- C+
+       T+
+     /   \-- C-
+study 
+     \    /---- C+
+       T- 
+          \---- C-  
+
+
+
 
 ```{r, echo=F, out.width="80%", eval=F}
 library(knitr)
@@ -317,14 +434,17 @@ library(knitr)
 
 **14. [1 point] Write the probability statement that represents a Medicare-enrolled heavy smoker who gets a positive scan and actually has lung cancer.**
 
-_Type your answer here, replacing this text._
+Actually wants to find:
+P(C+|T+) = 26.7/94.6 = 0.2822
+
+# this is def that fit PPV... EPI said to relate to FEASIBILITY, not a very high number, which is why no CT scan of lung?
 
 **15. [1 point] Calculate the probability from question 14 using your work from question 13. Store the answer as a percentage rounded to one decimal place in the object called `p15`.**
 
 ```{r p15}
 p15 <- NULL # YOUR CODE HERE
-p15
-
+p15 = round(26.7/94.6 *100, 1) # 0.2822
+#p15 = 28.2
 ```
 
 ```{r}
@@ -336,7 +456,7 @@ _Type your answer here, replacing this text._
 **16. [1 point] What is the definition of the value you calculated in the previous question? Uncomment your selection.**
 
 ```{r p16}
-# p16 <- 'Positive Predictive Value'
+p16 <- 'Positive Predictive Value'
 # p16 <- 'Negative Predictive Value'
 # p16 <- 'Sensitivity'
 # p16 <- 'Specificity'
@@ -346,6 +466,10 @@ _Type your answer here, replacing this text._
 ```{r}
 . = ottr::check("tests/p16.R")
 ```
+
+
+//sn50++ stopped  2022.0301 //
+
 
 ## Part 4: Prenatal Microdeletion Screening
 
