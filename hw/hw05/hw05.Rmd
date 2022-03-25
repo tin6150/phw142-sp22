@@ -53,6 +53,17 @@ p2 <- NULL # YOUR CODE HERE
 p2
 
 
+me = .975
+pn = pnorm(q=298,mean=266,sd=16)
+
+delta = abs(me - pn)
+p2 = c(pn, delta)
+
+#p2 = c(me, 0.01)
+#p2 = pn
+p2
+
+
 # YOUR CODE HERE
 ```
 
@@ -73,10 +84,16 @@ p2
 ```{r, out.width="50%"}
 # YOUR CODE HERE
 
+# oh, 50% are not 1sd away from mean... 
+left = qnorm(p=.25,mean=266,sd=16)
+right = qnorm(p=.75,mean=266,sd=16)
+
+c(left,right)
+
 # YOUR CODE HERE
 ```
 
-_Type your answer here, replacing this text._
+_50% of the prenancies will have gestation of 255 to 277 days_
 
 \newpage
 
@@ -92,16 +109,20 @@ The number of trees for nine plots of land, each of 0.1 hectare, have been recor
 library(tidyverse)
 
 # example code
-counts <- c(1, 2, 3)
+counts <- c(18, 4, 22, 15, 18, 19, 22, 12, 12)
 tree_data <- data.frame(counts)
 
 # YOUR CODE HERE
+counts <- c(18, 4, 22, 15, 18, 19, 22, 12, 12)
+tree_data <- data.frame(counts)
+#View(tree_data)
 
+ggplot(tree_data, aes(sample=counts)) + stat_qq() + stat_qq_line()
 
 # YOUR CODE HERE
 ```
 
-_Type your answer here, replacing this text._
+_yeah, the points are close enough to the qq plot line that they seems reasonably close to Normal dist_
 
 \newpage
 
@@ -115,7 +136,7 @@ they saw on a flier on campus.
 
 **5. [1 point] Let $X$ represent the number of enrolled patients who benefit from the treatment. Does $X$ meet the assumptions of a Binomial distribution? Thoroughly explain why or why not.**
 
-_Type your answer here, replacing this text._
+_yes, X would meet the assumptions of the Binomial Distributions.  Each patient would be rated as 1/Success when they benefit from the new treament, 0/Fail otherwise, and they would be mutually exclusive and exhaustive.  There is a max number of people involved, so Poisson would not be a good distribution for this setting.  Patients and outcome are independent._
 
 \newpage
 
@@ -123,6 +144,10 @@ _Type your answer here, replacing this text._
 
 ```{r}
 p6 <- NULL # YOUR CODE HERE
+n = 8
+k = 5
+p = 0.30
+p6 = choose(n,k)*(p^k)*((1-p)^(n-k))
 p6
 
 
@@ -139,6 +164,7 @@ p6
 
 ```{r}
 p7 <- NULL # YOUR CODE HERE
+p7 = dbinom(x=5,size=8,prob=0.30)
 p7
 
 
@@ -153,8 +179,29 @@ p7
 
 **8. [1 point] Calculate the probability that 6 or more participants will benefit from the treatment (by hand). Show your work.**
 
+6 or more participants...
+can use cumulaive... 
+P(X>=6)
+by hand?!?!
+would need to calc 
+Sum( P(X=6) + P(X=7) + P(x=8))
+
+
+
 ```{r}
 p8 <- NULL # YOUR CODE HERE
+p8
+
+n = 8
+p = 0.30
+
+
+p8 = (
+  choose(n,6)*(p^6)*((1-p)^(n-6)) +
+  choose(n,7)*(p^7)*((1-p)^(n-7)) +
+  choose(n,8)*(p^8)*((1-p)^(n-8)) 
+)
+
 p8
 
 
@@ -171,6 +218,7 @@ p8
 
 ```{r}
 p9 <- NULL # YOUR CODE HERE
+p9 = 1 - pbinom(q=6-1,size=8,prob=0.3)
 p9
 
 
@@ -187,6 +235,9 @@ p9
 
 ```{r}
 p10 <- NULL # YOUR CODE HERE
+p10 = dbinom(x=6,size=8,prob=0.3) + 
+      dbinom(x=7,size=8,prob=0.3) + 
+      dbinom(x=8,size=8,prob=0.3) 
 p10
 
 
@@ -201,17 +252,32 @@ p10
 
 **11. [1 point] Interpret the binomial coefficient, ${8 \choose 7}$, in the context of this study. Write out all the possible combinations to achieve ${8 \choose 7}$.**
 
-_Type your answer here, replacing this text._
+_"8 choose 7" means that we have 8 participants, and we are looking for the chance that exactly 7 participants will benefit from the new treatment.  Using the Binomial distribution, 
+P(X=7) would be one way to provide the answer.  
+additionally, since pascal triangle and the combination function "n choose k" is symetrical, 
+we can also calcuate using  8-7 = 1, thus
+P(X=1)
+_
 
 **12. [1 point] Calculate the number of patients you would expect to benefit from the treatment. Then calculate the standard deviation of this estimate. Write a sentence to interpret the mean. If the mean is not a whole number, what whole number is most probable?**
 
-_Type your answer here, replacing this text._
+
+#### this has to do with sampling dist of a count?   see L15 slide 49.
+
+#### actually: Binomial mean and std dev, L16, slide 16!
+
+_mu = n*p = 8 * 0.30 = 2.4, ie, about 2 person is expected to benefit from this new treatment, given the n=8 number of participants. _
+
+
+
 
 \newpage
 
 **13. [1 point] Should you apply a Normal approximation to these data using the $\mu$ and $\sigma$ you calculated in the last question? Why or why not?**
 
-_Type your answer here, replacing this text._
+
+
+_Binom approaches N() for large n, but here n is quite small, only 8.  it would also converge to N() quicker when p is closer to 0.5, but here it is only 0.3.  n*p is 8*0.3 = 2.4, again another metrics expecting it to be > 10 for N() approx to be good.  Thus, overall, not really good to use N() approx in this case_
 
 ## END 
 

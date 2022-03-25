@@ -1,6 +1,6 @@
 ---
 title: 'Lab 5: Independence, Screening, and Normal Distribution'
-author: "Your name and Student ID"
+author: "Tin Ho 3033518349"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: pdf_document
 ---
@@ -13,7 +13,7 @@ library(testthat)
 ```
 
 ### Instructions 
-* Due date: Monday, February 28th at 11:59pm PT.
+* Due date: Monday, February 28th at 11:59pm PT.  Now 3/7
 * Late penalty: 50% late penalty if submitted within 24 hours of due date, no marks for assignments submitted thereafter.
 * This assignment is graded on **correct completion**, all or nothing. You must pass all public tests and submit the assignment for credit.
 * Submission process: Follow the submission instructions on the final page. Make sure you do not remove any `\newpage` tags or rename this file, as this will break the submission. 
@@ -46,10 +46,14 @@ All human blood can be one of the following types: O, A, B, or AB, but the distr
 Choose an American person and a Chinese person at random, and assume they are independent of one other.
 
 **1. [1 point] What is the probability that both have type O blood?**
+
+P(O|C) intersect P(O|U)
+
   
 
 ```{r}
 p1 <- NULL # YOUR CODE HERE
+p1 = .35 * .45
 p1
 
 
@@ -64,11 +68,17 @@ p1
 
 **2. [1 point] What is the probability that both have the same blood type?**
   
+  
+P(O|C) intersect P(O|U)   + 
+P(A|C) intersect P(A|U)   + 
+P(B|C) intersect P(B|U)   + 
+P(AB|C) intersect P(AB|U)   
+
 
 ```{r}
 p2 <- NULL # YOUR CODE HERE
+p2 = (.35*.45) + (.27*.4) + (.26*.11) + (.12*.04)
 p2
-
 
 # YOUR CODE HERE
 ```
@@ -85,8 +95,25 @@ _Universal blood donors._
 
 People with type O-negative blood are universal donors. That is, any patient can receive a transfusion of type O-negative blood without problems. Only 7.2% of the American population have O-negative blood. If 10 people appear at random to give blood, what is the probability that at least 1 of them is a universal donor?
 
-_Type your answer here, replacing this text._
+_It would be 1 - P(zero person out of 10 is universal donor)._
 
+_P(zero person out of 10 is universal donor) is dbinom(x=0, size=10, prob=0.072) , so_
+
+_1 - 0.4736742  = 0.5263258_
+
+_ie 52.63% chance that out of 10 people at least 1 would be universal donor_
+
+
+
+```{r}
+zero_udon = dbinom(0, size=10, prob=0.072)
+answer = 1 - zero_udon
+c(answer, 1, zero_udon)
+
+# cuz 0 is the smallest non-negative integer, these 2 are the same:
+dbinom(x=0,size=10,prob=0.072)
+pbinom(q=0,size=10,prob=0.072)
+```
 \newpage
 
 **From Baldi and Moore (3E question 10.46, 4E not present)**
@@ -114,15 +141,17 @@ The rows represent the alleles for one parent and the columns represent the alle
 
 **4. Rachel and Jonathan both have alleles A and B. What blood types can their children have?**
 
-_Type your answer here, replacing this text._
+_A,B,AB_
 
 \newpage
 
 **5. [1 point] Jasmine has alleles A and O. Tyrone has alleles B and O. What is the probability that a child of these parents has blood type O?**
   
+  _It is .5 * .5 so 1/4_
 
 ```{r}
 p5 <- NULL # YOUR CODE HERE
+p5 = .5 * .5
 p5
 
 
@@ -141,8 +170,8 @@ p5
 
 ```{r}
 p6 <- NULL # YOUR CODE HERE
+p6 = (.5*.5)^3
 p6
-
 
 # YOUR CODE HERE
 ```
@@ -155,8 +184,8 @@ p6
 
 ```{r}
 p7 <- NULL # YOUR CODE HERE
+p7 = 1/4 * (1-1/4) * (1-1/4)
 p7
-
 
 # YOUR CODE HERE
 ```
@@ -184,13 +213,16 @@ The events "adult is in a specified age group" and "adult has the flu" are calle
 
 **8. Calculate and compare the conditional probability of flu among those age 65 and older and the conditional probability of flu among those 18 to 29 years old.**
 
-_Type your answer here, replacing this text._
+_P(flu|65+)   = 112/8792 =  0.01273885_
+_P(flu|18-29) =  88/2574 =  0.03418803_
+
 
 This shows that the events "age group" and "adult has the flu" are **not** independent.
 
 **Another way to check for independence is to see if the overall probability of flu differs from the age-group stratum specific probabilities of flu. Do this, too.**
 
-_Type your answer here, replacing this text._
+_P(flu|anyAge)  = 618/28606 = 0.02160386, which differ from both of the answer above, thus not independetn_
+
 
 \newpage
 
@@ -201,10 +233,10 @@ _Type your answer here, replacing this text._
 Enzyme immunoassay tests are used to screen blood specimens for the
 presence of antibodies to HIV, the virus that causes AIDS. Antibodies indicate the presence of the virus. The test is quite accurate but is not always correct. Here are approximate probabilities of positive and negative test results when the blood tested does and does not actually contain antibodies to HIV. [Hint: these are conditional probabilities, given HIV status].
 
-* P( test positive + | antibodies present ) = 0.9985
+* P( test positive + | antibodies present ) = 0.9985  # sensitivity, mostly?
 * P( test positive + | antibodies absent ) = 0.0060
-* P( test negative – | antibodies present ) = 0.0015
-* P( test negative – | antibodies absent ) = 0.9940
+* P( test negative – | antibodies present ) = 0.0015 
+* P( test negative – | antibodies absent ) = 0.9940   # specificity, mostly 
 
 Suppose that 1% of a large population carries antibodies to HIV in its blood.
 
@@ -216,7 +248,7 @@ Suppose that 1% of a large population carries antibodies to HIV in its blood.
 ```{r}
 # Take off the '#' in the following code and replace the code with you file name
 
-# knitr::include_graphics("src/Your-file-name.JPG")
+knitr::include_graphics("src/phw142_lab05_hiv_status.jpg")
 ```
 
 ```{r}
@@ -227,10 +259,17 @@ Suppose that 1% of a large population carries antibodies to HIV in its blood.
 
 **10. [1 point] What is the probability that the test is positive for a randomly chosen person from this population?**
 
+1% of pop has HIV Ab in its blood, so 1%  will be Ab+
+Out of this, 99.85% of them will test +ve, thus 1% * 99.85%
+
+BUT, still need to add:
+99% will be Ab-, but .6% of them will still test +ve.
+
+
 ```{r}
 p10 <- NULL # YOUR CODE HERE
+p10 = (.01 * 0.9985 ) + (.99*.0060)
 p10
-
 
 # YOUR CODE HERE
 ```
@@ -245,8 +284,27 @@ p10
   
 **11. [1 point] What is the probability that a person has the antibody, given that the test is positive? Explain in your own words what this means.**
 
+
+
+_P(Ab+|T+), which is the PPV value, which is TP / (TP+FP)_
+_but don't readily have TP and FP values from the HIV status tree_
+_thus need the 1% exptected AB+ rate_
+
+1% of pop has HIV Ab in its blood, so 1%  will be Ab+
+Out of this, 99.85% of them will test +ve, thus 1% * 99.85% = 0.009985 <-- this is TP
+
+Now need to find out FP rate:
+99% will be Ab-, but .6% of them will still test +ve. thus .99 * .006 = 0.009985 <-- FP
+
+_Overall, PPV comes out to 62.70%, which is to say that widespread test for HIV Ab_
+_in this population will find that 62.7% of the people to be Positive and actually have the HIV Ab._
+
 ```{r}
 p11 <- NULL # YOUR CODE HERE
+p11 = 0.9985 / (0.9985 + .0015 )
+TP=0.009985
+FP=.99 * .006
+p11 = TP / (TP+FP)
 p11
 
 
@@ -261,7 +319,12 @@ p11
 
 **12. Define and calculate the test's sensitivity, specificity, and positive predictive value.**
 
-_Type your answer here, replacing this text._
+
+_Sensitivity is provided by: P( test positive + | antibodies present ) = 0.9985_
+
+_Specificity is provided by: P( test negative – | antibodies absent ) = 0.9940_
+
+_PPV is calculated above as TP / (TP+FP) = 0.6270016_
 
 
 \newpage
@@ -271,8 +334,11 @@ _Type your answer here, replacing this text._
   
 **13. [1 point] The probability that all 10 have a sedentary lifestyle.**
 
+Can use Binomial Dist to model this, as pop of USA is a finite size.  p=0.60
+
 ```{r}
 p13 <- NULL # YOUR CODE HERE
+p13 = dbinom(10,10,0.60)
 p13
 
 
@@ -286,8 +352,12 @@ p13
 \newpage
 **14. [1 point] The probability that at least one does not have a sedentary lifestyle.**
 
+at least one does not have sedentary lifestyle
+can be reframed as only up to 9 have sedendary lifestyle, thus:
+
 ```{r}
 p14 <- NULL # YOUR CODE HERE
+p14 = pbinom(9,10,0.60)
 p14
 
 
@@ -316,7 +386,7 @@ Use R to find the standardized value z that satisfies each of the following cond
 **15. [1 point]	The probability that a randomly selected observation falls below z is 0.8.** 
 
 ```{r}
-p15 <- NULL # YOUR CODE HERE
+p15 <- qnorm(0.8)
 p15
 
 
@@ -332,7 +402,7 @@ p15
 **16. [1 point]	The probability that a randomly selected observation falls above z is 0.35.** 
 
 ```{r}
-p16 <- NULL # YOUR CODE HERE
+p16 =  qnorm(0.35, lower.tail=FALSE)
 p16
 
 
@@ -350,7 +420,7 @@ For babies born at full term (37 to 39 completed weeks of gestation), the distri
 **17. [1 point] What is the 25th percentile of the birthweights for full term babies?** 
 
 ```{r}
-p17 <- NULL # YOUR CODE HERE
+p17 = qnorm(.25,mean=3350,sd=440)
 p17
 
 # YOUR CODE HERE
@@ -364,6 +434,8 @@ p17
 
 ```{r}
 p18 <- NULL # YOUR CODE HERE
+p18 = qnorm(.9,mean=3350,sd=440)
+
 p18
 
 # YOUR CODE HERE
@@ -377,6 +449,8 @@ p18
 
 ```{r}
 p19 <- NULL # YOUR CODE HERE
+p19 = c(qnorm(.25,mean=3350,sd=440),qnorm(.75,mean=3350,sd=440))
+
 p19
 
 # YOUR CODE HERE
@@ -393,8 +467,9 @@ p19
 
 ```{r}
 p20 <- NULL # YOUR CODE HERE
+p20 = pnorm(55,mean=50,sd=5,lower.tail=FALSE)
+p20 = round(p20*100,2)
 p20
-
 # YOUR CODE HERE
 ``` 
 
@@ -406,6 +481,12 @@ p20
 
 ```{r}
 p21 <- NULL # YOUR CODE HERE
+
+left  = pnorm(40,mean=50,sd=5)
+right = pnorm(55,mean=50,sd=5,lower.tail=FALSE)
+p21 = 1 - left - right
+p21 = round(p21*100,2)
+
 p21
 
 # YOUR CODE HERE
@@ -423,6 +504,8 @@ The common fruit fly, Drosophila melanogaster, is the most studied organism in g
 
 ```{r}
 p22 <- NULL # YOUR CODE HERE
+p22 = pnorm(1,mean=.800,sd=.078,lower.tail = FALSE)
+p22 = round(p22*100,2)
 p22
 
 # YOUR CODE HERE
@@ -442,6 +525,7 @@ How much of a difference do a couple of weeks make for birthweight? Late-preterm
 
 ```{r}
 p23 <- NULL # YOUR CODE HERE
+p23 = qnorm(0.25,mean=2750,sd=560)
 p23
 
 # YOUR CODE HERE
@@ -455,6 +539,8 @@ p23
 
 ```{r}
 p24 <- NULL # YOUR CODE HERE
+p24 = qnorm(0.90,mean=2750,sd=560)
+
 p24 
 
 # YOUR CODE HERE
@@ -468,6 +554,9 @@ p24
 
 ```{r}
 p25 <- NULL # YOUR CODE HERE
+
+p25 = c( qnorm(0.25,mean=2750,sd=560), qnorm(0.75,mean=2750,sd=560) )
+
 p25 
 
 # YOUR CODE HERE
@@ -479,7 +568,7 @@ p25
 
 **26. Compare your answers to the questions about full term babies (17-19) with your answers to the questions about late-preterm babies (23-25). What do you notice?**
 
-_Type your answer here, replacing this text._
+_the preterm babies are significantly lighter, to the point that their 75th percentile is just catching up to the lower 25th percentiler of normal term babies_
 
 **Z-scores. (From Baldi and Moore, 3E question 11.25, 4E question 11.27)**
 
@@ -489,6 +578,8 @@ Use the `pnorm` function to find the proportion of observations from a standard 
 
 ```{r}
 p27 <- NULL # YOUR CODE HERE
+#p27 = -2.25-0/1
+p27 = pnorm(-2.25)
 p27
 
 # YOUR CODE HERE
@@ -501,7 +592,7 @@ p27
 **28. z $\ge$ -2.25.**
 
 ```{r}
-p28 <- NULL # YOUR CODE HERE
+p28 = pnorm(-2.25,lower.tail=FALSE)
 p28
 
 # YOUR CODE HERE
@@ -514,7 +605,7 @@ p28
 **29. z > 1.77.**
 
 ```{r}
-p29 <- NULL # YOUR CODE HERE
+p29 <- pnorm(1.77,lower.tail=F)
 p29
 
 # YOUR CODE HERE
@@ -527,7 +618,9 @@ p29
 **30. -2.25 < z < 1.77.**
 
 ```{r}
-p30 <- NULL # YOUR CODE HERE
+left = pnorm(-2.25)
+right = pnorm(1.77, lower.tail=F)
+p30  = 1 - left - right
 p30
 
 # YOUR CODE HERE

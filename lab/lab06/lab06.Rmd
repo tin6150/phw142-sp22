@@ -1,7 +1,7 @@
 ---
 title: 'Lab 6: Normal, Binomial, and Poisson Distribution'
-author: "Your name and Student ID"
-date: "Today's Date"
+author: "tin ho 3033518549"
+date: "3/13/2022"
 output: pdf_document
 ---
 
@@ -45,25 +45,27 @@ the return or enter key so that the code runs onto the next line.
 
 This lab will wrap up some concepts about the Normal distribution. We will then look at the binomial distribution and the normal approximation of the binomial. Finally, we will look at calculations under the Poisson distribution. 
 
+
+
 ### Part 1: Review Questions
 
 To prepare for this lab, take a minute to answer the following review questions.
 
 **1. What are the two parameters that define the Normal distribution?**
 
-_Type your answer here, replacing this text._
+_1. mean/average 2.sigma/standdard deviation.  _
 
 **2. What type(s) of plots can we use to determine if data is approximately normally distributed?**
 
-_Type your answer here, replacing this text._
+_QQ Plots_
 
 **3. How can you determine if a random variable follows a binomial distribution?**
 
-_Type your answer here, replacing this text._
+_1. Random Variable X has values 0 or 1, Failure or Success, always one or the other, mutually exclusive, and 0,1 space is exhaustive.  Outcomes are independent.  Number of trials is from count, finite size, up to a max. _
 
 **4. How can you determine if a random variable follows a Poisson distribution?**
 
-_Type your answer here, replacing this text._
+_1. Random Variable X has values 0 or 1, Failure or Success, always one or the other, mutually exclusive, and 0,1 space is exhaustive.  Outcomes are independent.  HOWEVER, while Number of trials are also from count, they is no upper limit. It is usually for rare events, eg whether a child has Mumps infection.  _
 
 \newpage
 
@@ -85,15 +87,19 @@ anorexia <- MASS::anorexia
 detach("package:MASS", unload = T)
 
 head(anorexia, 10) # Here are the first 10 rows of data
+str(anorexia)
 ```
+
+
 
 **5. [1 point] Add a new column to `anorexia` called `diff` that is the difference between the women's weights before and after treatment. Assign this new dataset to an object called `anorexia_diff`.**
 
 ```{r}
 anorexia_diff <- NULL # YOUR CODE HERE
+anorexia_diff <- anorexia %>% mutate( diff = Postwt - Prewt)
 anorexia_diff
-# dim(anorexia_diff) # Uncomment this line to check the dimensions of your new dataset
-
+dim(anorexia_diff) # Uncomment this line to check the dimensions of your new dataset
+#str(anorexia_diff)
 
 # YOUR CODE HERE
 ```
@@ -106,6 +112,7 @@ anorexia_diff
 
 ```{r}
 p6 <- NULL # YOUR CODE HERE
+p6 <- ggplot( data=anorexia_diff, aes(x=diff)  ) + geom_histogram( binwidth=2 )
 p6
 
 
@@ -118,12 +125,14 @@ p6
 
 **7. Describe the distribution of the `diff` variable.**
 
-_Type your answer here, replacing this text._
+_It has some semblance of a normal distribution.  If we had more data points, it may indeed show up as a bell curve.  Mean = peak = 0 ie no weight differences pre and post-treatment.  std dev maybe 4 lbs._
 
 **8. [1 point] Compare the `diff` variable from the `anorexia_diff` data to a Normal distribution using a different `ggplot2` function. Determine if a Normal distribution is a good fit for these data.**
 
 ```{r}
 p8 <- NULL # YOUR CODE HERE
+p8 <- ggplot( data=anorexia_diff, aes(sample=diff)  ) + stat_qq() + stat_qq_line()
+
 p8
 
 
@@ -139,8 +148,8 @@ _Type your answer here, replacing this text._
 
 ```{r}
 p9 <- NULL # YOUR CODE HERE
+p9 <- pnorm(5,mean=2,sd=7,lower.tail=F)
 p9
-
 
 # YOUR CODE HERE
 ```
@@ -153,6 +162,7 @@ p9
 
 ```{r}
 p10 <- NULL # YOUR CODE HERE
+p10 <- qnorm(0.9,mean=2,sd=7)
 p10
 
 
@@ -173,27 +183,49 @@ Antibiotic resistance occurs when disease-causing microbes no longer respond to 
 
 **11. Let X represent the number of patients with antibiotic resistance seen by this physician. Use notation you learned in lecture to show the distribution that X follows.**
 
-_Type your answer here, replacing this text._
+_X is a Binomial Distribution.  0=no antibiotics resistance, 1=yes on antibiotics resistance. p=.27 for the prop of antibiotic resistance gonorrhea prevalence in 2010.  _
 
 **12. [1 point] Calculate (by hand) the probability that exactly 5 of the 20 treated people have antibiotic resistance. You can use the `choose(n = , k = )` function in R to help. Confirm your results using an R function.**
 
 ```{r}
 p12 <- NULL # YOUR CODE HERE
+# P(X=k) = C(n,k)*(p^k)*(1-p)^(n-k)
+k<-5
+n<-20
+p<-0.27
+p12 <- choose(n,k)*(p^k)*(1-p)^(n-k)
 p12
 
-
+confirm <- dbinom(x=5,size=20,prob=0.27)
+confirm
+p12 - confirm
+p12
 # YOUR CODE HERE
 ```
 
 ```{r}
 . = ottr::check("tests/p12.R")
 ```
-_Type your answer here, replacing this text._
+_19.82%_
 
 **13. [1 point] Calculate (by hand) the probability that more than 1 person has antibiotic resistance. Confirm your answer using R. Hint: work smarter not harder.**
 
 ```{r}
 p13 <- NULL # YOUR CODE HERE
+p13
+
+# here want P(X>1)  # >1 , NOT >=1  ... sneaky!  
+# so, essentially 100% - P(X=0) - P(X=1)
+
+n<-20
+p<-0.27
+p13 <- 1 - choose(n,0)*(p^0)*(1-p)^(n-0) -
+           choose(n,1)*(p^1)*(1-p)^(n-1)
+p13
+
+confirm13 <- 1 - pbinom(1,size=20,prob=0.27)
+confirm13
+p13 - confirm13
 p13
 
 
@@ -203,7 +235,7 @@ p13
 ```{r}
 . = ottr::check("tests/p13.R")
 ```
-_Type your answer here, replacing this text._
+_98.45%_
 
 Suppose in one Western United States city there were 812 cases of gonorrhea in a population of 100,000. The probability of antibiotic resistance to at least one major antibiotic remains the same at approximately 27 percent. 
 
@@ -211,6 +243,17 @@ Suppose in one Western United States city there were 812 cases of gonorrhea in a
 
 ```{r}
 p14 <- NULL # YOUR CODE HERE
+
+##gono_resist <- round(qbinom(p=0.5,size=812,prob=0.27),0)   ## nope, not this
+p <- 0.27
+n_cases <- 812
+
+
+# from X .~ N(mu=np,sigma=sqrt(np(1-p)))
+gono_resist_mean <- round(   n_cases * p, 0 )
+gono_resist_sd   <- round( sqrt( (n_cases)*(p)*(1-p)) , 2 )
+
+p14 <- c(gono_resist_mean,gono_resist_sd)
 p14
 
 
@@ -223,7 +266,13 @@ p14
 
 **15. We learned in class that the binomial distribution can be approximated by the Normal distribution under some conditions. List the conditions below and determine whether problem 14 satisfies them.**
 
-_Type your answer here, replacing this text._
+_n is large enough, eg n*p>10 AND n*(1-p)>10, and these conditions are satisfied in this example problem 14._
+
+```{r my_scratch}
+(n_cases)*(p)
+(n_cases)*(1-p)
+```
+
 
 **Let's generate some data from this distribution to check the normal approximation!**
 
@@ -246,11 +295,17 @@ obs_data <- as.data.frame(cbind(x_vals, probs))
 **16. [1 point] Now use ggplot2 to plot a histogram of `obs_data` with `x_vals` on the x-axis and the respective probabilities on the y-axis.**
 
 ```{r}
-p16 <- NULL # YOUR CODE HERE
+
+## ref: Lab video ~ [24:00]  
+## https://bcourses.berkeley.edu/courses/1513233/pages/week-8
+
+### NOTp16 <- ggplot(data=obs_data,aes(x=x_vals,y=probs)) + geom_histogram( XXbinwidthXX = 1, stat="identity" )
+
+p16 <- ggplot(data=obs_data,aes(x=x_vals,y=probs)) + geom_histogram( stat="identity" )
+
+
 p16
 
-
-# YOUR CODE HERE
 ```
 
 ```{r}
@@ -267,14 +322,17 @@ Between 2006 and 2010, the state of New York reported 1484 live births of infant
 
 **17. What distribution does X approximately follow? Write it using notation learned in lecture. What are the possible values X can take?**
 
-_Type your answer here, replacing this text._
+_this looks to follow a poisson dist, as it is 0,1 for no,yes for Down syndrome, and number of cases go be arbitrary large (but pop size is not actually infinite, close enough?).  a finite time span was specified (1wk) and the cases are independent (though the problem did not talk about twins and whether down syndrome for them are independent, let's skip over the devils for this lab?)_
 
+  
 **18. [1 point] What are the mean and standard deviation of X? Assign these values to a vector called `p18` with mean as the first value and the standard deviation as the second.**
 
 ```{r}
 p18 <- NULL # YOUR CODE HERE
-p18
-
+down_mean <- 5.7
+down_sd   <- sqrt(down_mean)
+p18 <- c(down_mean, down_sd)
+p18 
 
 # YOUR CODE HERE
 ```
@@ -287,8 +345,38 @@ p18
 
 ```{r}
 p19 <- NULL # YOUR CODE HERE
-p19
 
+# Poisson P(X=k) = ((e^-mu)*(mu^k))/(k!)
+
+k19   <- 0
+mu19  <- 5.7
+factorial(0)
+5.7^0
+exp(-5.7)
+exp(-(mu19))
+p19 = 0.003345965
+
+
+poisson19 <-  ( (  exp(-mu19))*(mu19^k19)  ) / factorial(k19)
+poisson19
+
+check0 = p19 - poisson19
+check0
+
+confirm19 = ppois(0,lambda=mu19)
+
+confirm19 = dpois(0,lambda=mu19)    # for 0 p- and d- class expected to return same result, which it does
+
+confirm19
+
+
+
+c(p19,poisson19,confirm19)
+
+check = confirm19 - p19
+check
+
+p19
 
 # YOUR CODE HERE
 ```
@@ -300,7 +388,34 @@ p19
 **20. [1 point] What is the probability that 2 or more children will be born with Down Syndrome in a given week in New York? Calculate the probability by hand and confirm your answer in R.**
 
 ```{r}
-p20 <- NULL # YOUR CODE HERE
+
+#### ie, want to find P(X>=2) 
+#### Lect 17 slide 12.
+#### manually... how can one do P(X=2) + P(X=3) + ... + P(X=infinity) ??
+#### still do the same that the lecture did, but by hand.  1 - [ P(X=1) + P(X=0) ]
+
+
+
+mu20=mu19
+
+PX0 = ( (  exp(-mu20))*(mu20^0)  ) / factorial(0)
+PX1 = ( (  exp(-mu20))*(mu20^1)  ) / factorial(1)
+
+poisson20 <-  1 - PX0 - PX1
+poisson20
+
+
+
+#check00 = p20 - poisson20
+#check00
+
+confirm20 = 1- ppois(1,lambda=mu20)
+confirm20
+
+check20 = poisson20 - confirm20
+check20
+
+p20 = poisson20
 p20
 
 
@@ -315,6 +430,12 @@ p20
 
 ```{r}
 p21 <- NULL # YOUR CODE HERE
+
+## now wants P(X>12)   # more than 12, so 12 isn't included, rigth??
+## use complement side... 1 - P(X<=12)
+
+p21 = 1- ppois(12,lambda=mu20)
+
 p21
 
 

@@ -41,8 +41,8 @@ CS_data <- CS_data %>% mutate(CS_rate_100 = CS_rate*100)
 **1. [1 point] Make a scatter plot between `CS_rate_100` and `GDP_2006`.**
 
 ```{r scatterplot}
-p1 <- NULL # YOUR CODE HERE
-p1
+# p1 <- NULL # YOUR CODE HERE
+# p1
 
 # YOUR CODE HERE
 
@@ -54,7 +54,7 @@ tmp2 = ggplot(CS_data, aes( y=CS_rate_100, x=GDP_2006) ) + geom_line() + geom_po
   theme_minimal(base_size=14)
 #tmp2
 
-p1 = ggplot(CS_data, aes( y=CS_rate_100, x=GDP_2006) ) + geom_point() 
+p1 <- ggplot(CS_data, aes( y=CS_rate_100, x=GDP_2006) ) + geom_point() 
 p1
 
 ```
@@ -70,8 +70,8 @@ In your plot, you might notice that many of the points are condensed towards the
 **2. [1 point] Using the `mutate()` function, add two new logged variables to the `CS_data` dataset and assign this new dataset to `CS_data_log`. Call the variables `log_CS` and `log_GDP`. Use base e, also known as the natural logarithm, to create the logged variables.**
 
 ```{r create-logged variables}
-CS_data_log <- NULL # YOUR CODE HERE
-CS_data_log
+# CS_data_log <- NULL # YOUR CODE HERE
+# CS_data_log
 
 #View(CS_data)
 CS_data_log <- CS_data %>% mutate(log_CS=log(CS_rate_100,exp(1)), log_GDP=log(GDP_2006))
@@ -88,10 +88,10 @@ CS_data_log <- CS_data %>% mutate(log_CS=log(CS_rate_100,exp(1)), log_GDP=log(GD
 **3. [1 point] Remake the scatter plot using the logged variables.**
 
 ```{r scatter-logged}
-p3 <- NULL # YOUR CODE HERE
-p3
+# p3 <- NULL # YOUR CODE HERE
+# p3
 
-p3 = ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point() 
+p3 <- ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point() 
 p3
 # YOUR CODE HERE
 ```
@@ -105,8 +105,8 @@ p3
 **4. [1 point] A `geom` that you have not yet learned is `geom_smooth()`. This geom can fit a curve to the data. Extend your `ggplot()` code by adding geom_smooth() to it.**
 
 ```{r add-smoothed-curve}
-p4 <- NULL # YOUR CODE HERE
-p4 = p3 + geom_smooth()
+# p4 <- NULL # YOUR CODE HERE
+p4 <- p3 + geom_smooth()
 
 p4
 # YOUR CODE HERE
@@ -127,8 +127,8 @@ Was this called a threshold level relationship?
 **6. [1 point] Modify your scatter plot by linking the color of the points to the variable`Income_Group`.**
 
 ```{r color-points-by-income-group}
-p6 <- NULL # YOUR CODE HERE
-p6
+# p6 <- NULL # YOUR CODE HERE
+# p6
 
 ### lab video 2 [18:28]
 aes(col=Income_Group)
@@ -139,7 +139,7 @@ aes(col=Income_Group)
 #p6 = p4 + aes(col=Income_Group)
 #p6 = p3 + aes(col=Income_Group) + geom_smooth()
 
-p6 = ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point(aes(col=Income_Group)) + geom_smooth() 
+p6 <- ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point(aes(col=Income_Group)) + geom_smooth() 
 p6
 
 ```
@@ -157,12 +157,12 @@ It holds for the low income group.
 **7. [1 point] For this lab, we would like to use linear regression. To do this, use a `dplyr` function to make a new dataset called `CS_data_sub` that only contains the low-, lower-middle, and upper-middle income countries (hint: You might want to look at the data to see exactly what these levels are called in the data set).**
 
 ```{r subset-low-mid-income}
-CS_data_sub <- NULL # YOUR CODE HERE
-CS_data_sub
+# CS_data_sub <- NULL # YOUR CODE HERE
+# CS_data_sub
 
 ### lab video 2 @ 25:12
 # YOUR CODE HERE
-CS_data_sub = CS_data_log %>% filter( Income_Group %in% c("Low income","Lower middle income","Upper middle income") )
+CS_data_sub <- CS_data_log %>% filter( Income_Group %in% c("Low income","Lower middle income","Upper middle income") )
 #dim(CS_data)
 #dim(CS_data_sub)
 
@@ -177,9 +177,9 @@ CS_data_sub = CS_data_log %>% filter( Income_Group %in% c("Low income","Lower mi
 **8. [1 point] Remake the last scatter plot, this time using `CS_data_sub` to see if the relationship between the logged variables looks approximately linear.**
 
 ```{r scatter-low-mid}
-p8 <- NULL # YOUR CODE HERE
-p8
-p8 = ggplot(CS_data_sub, aes( y=log_CS, x=log_GDP) ) + geom_point(aes(col=Income_Group)) + geom_smooth() 
+# p8 <- NULL # YOUR CODE HERE
+# p8
+p8 <- ggplot(CS_data_sub, aes( y=log_CS, x=log_GDP) ) + geom_point(aes(col=Income_Group)) + geom_smooth() 
 p8
 # YOUR CODE HERE
 ```
@@ -191,8 +191,8 @@ p8
 **9. [1 point] Given that the relationship is approximately linear, use linear regression to model the relationship between `log_CS` as the response variable and `log_GDP` as the explanatory variable. Don't forget to specify the correct dataset!**
 
 ```{r linear-model}
-p9 <- NULL # YOUR CODE HERE
-p9
+# p9 <- NULL # YOUR CODE HERE
+# p9
 
 ### 30:40
 
@@ -201,7 +201,7 @@ lin_mod =  lm(log_CS ~ log_GDP, data=CS_data_sub)
 #XXtmp9 = tidy(lin_mod)
 #XXtmp9
 #XXp9 = ggplot(tmp9, aes( y=log_CS, x=log_GDP))
-p9 = lin_mod
+p9 <- lin_mod
 p9
 # YOUR CODE HERE
 ```
