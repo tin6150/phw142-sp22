@@ -1,9 +1,10 @@
 ---
 title: "Lab07:  Central limit theorem and inference"
-author: "name and student ID"
-date: "Today's date"
+author: "Tin Ho 3033518349"
+date: "2022-03-26"
 output: pdf_document
 ---
+
 
 
 ### Instructions 
@@ -58,7 +59,7 @@ What you see is a simulation of a sampling process.  Set the $\alpha$ value to 5
 What is the shape of this distribution? 
 
 
-_Type your answer here, replacing this text._
+_Normal._
 
 
 \newpage
@@ -76,7 +77,7 @@ Then set the parameters to:  $\alpha=0.6$ $\beta=1$ sample size = 15 draws = 50.
 
 How does the distribution of sample means change when the sample size increases?
 
-_Type your answer here, replacing this text._
+_The shape of the bell curve got narrower as sample size increased.  ie variance reduced _
 
 Play with the parameters a bit to change the shape of the original distribution and the sample size - notice when the histogram looks normally distributed and when it does not.
 
@@ -100,7 +101,7 @@ In your own words:
 
 What is p-hacking?
 
-_Type your answer here, replacing this text._
+_p-hacking is the most important lesson out of PHW-142! p-hacking boils down to looking and look again until you find what you are looking for.  It is like flipping coins enough time until we get 3 heads in a row.  due to random nature, we flip the coins enough time, eventually the less likely event will show up.  So the food and environment research done by the cornell vilain is just asking his students to look and look and look some more.  with a cut off value for alpha at 0.05, getting 20 students to look at different combination of conditions will result be more likely than not of stumbling into one experiment that will have a stat significant result.  who said there were lies, damn lies, and statistics? :-P_
 
 \newpage
 
@@ -108,7 +109,7 @@ _Type your answer here, replacing this text._
 
 What is data dredging?
 
-_Type your answer here, replacing this text._
+_errr... I thought data dreding was the same as p-hacking, maybe a term that was more popular before computer popularized "hacking"?  Wikipedia list them as synomyms in the first line._
 
 \newpage
 
@@ -116,7 +117,7 @@ _Type your answer here, replacing this text._
 
 One of these sources provides an example of p-hacking in epidemiology related to cancer clusters. Describe in your own words what the problem is.
 
-_Type your answer here, replacing this text._
+_overweight is a huge problem, in America, developed countries and increasingly even in less developed countries, where the labor force tends to have more physical work than the sedentary office work of MDC.  overeating, consuming too many calories, is one avenue that leads to overweight.  Wansink popularized a theory that the environment and behavior can help reduce portion, pick healthier food choice, and overall reduce overeating and therefore overweight.  The theory has appeal, but theory is just a thought until there are things to prove it, and Wansink used data to prove his points.  Except that it seems that, while he did not fabricate the data, he understood the theory of p-value and knew that he could hack it to work to his benefits, to help prove his points. He understood that getting a p-value < 0.05 is not hard when the "experiments" is repeated many times, eg > 20 times, then the chance of finding something significant will turn out to be more likely than not, cuz the math on p-values when repeated will just lead to the equivalent of a much more linean cut off value.   Instead of repeating the same study enough till data show significance, he used slightly different scenaries.  but when so many scenaries were looked at, but all kinda boils down to just behavior or env that varies like 1 degree out of 360, some studies eventually showed significance, and he cherry picked such studies to "prove his points", and locking the non significant studies into vault that should never see the light of day._
 
 \newpage
 
@@ -124,7 +125,7 @@ _Type your answer here, replacing this text._
 
 What are three practices noted in one of the articles to reduce p-hacking? Name each one and describe them in 1-2 sentences.
 
-_Type your answer here, replacing this text._
+_Decide ahead of time how to analyze the data and what is really statistically significant, before carrying out the data analysis.  register what studies will be done before carrying them out, so that one cannot cherry pick studies that show stat significance.  If a barrage of studies will be done, then to avoid p-hacking, the cut off value need to be adjusted accordingly eg alpha/number of planned studies to indicate significance.  finally, p-value is just some stat significance.  correlation is not causation!  Have an open and critical mind in evaluating the data and see if the conclusion is indeed sound, don't boil reasearch down to a single number called p-value._
 
 \newpage
 
@@ -132,7 +133,7 @@ _Type your answer here, replacing this text._
 
 One of the sources give a correction method for calculating p-value when you are going to conduct multiple tests. What is the name of the method? Write down the correction using an equation.
 
-_Type your answer here, replacing this text._
+_Adjust the Family wise error rate using the Bonferroni correction, choose a new alpha, 0.05/n, where n is number of studies to be performed.  eg 0.05/5 = 0.01, and use this as the new cut off for significance, so that all the studies combined will only have a Type 1 error rate of 0.05_
 
 \newpage
 
@@ -149,7 +150,7 @@ With captions: https://youtu.be/hes_5Xds8_U
 
 Which p-value is mentioned as leading to “Elation”?
 
-_Type your answer here, replacing this text._
+_err... my take away from the video is that the p-value is next to useless.  Geoff Cumming himself said not to use it.  ._
 
 \newpage
 
@@ -157,7 +158,7 @@ _Type your answer here, replacing this text._
 
 How big was the “true” difference in the imaginary experiment described?
 
-_Type your answer here, replacing this text._
+_the p-value "dances" around, from non significant, to slightly significant, to even highly significant!  The distribution of the p-values is all over the place, and the highly significant one actually expected to happens in about 10% of the time (this in the backdrop of p-value > .10 which is not significant, at 36%) .  Overall, Cumming says p value tell us almost nothing! ._
 
 \newpage
 
@@ -165,7 +166,7 @@ _Type your answer here, replacing this text._
 
 Which measure gave a better estimate of the variability in results over multiple simulated studies?
 
-_Type your answer here, replacing this text._
+_The CI!_
 
 #### Remember: download your knitted PDF and upload directly to Gradescope - the final document should be 11 pages long.
 
