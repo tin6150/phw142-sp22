@@ -1,7 +1,7 @@
 ---
 title: "Lab 08: T-Tests"
-author: "name and student ID"
-date: "Today's date"
+author: "Tin Ho 3033518349"
+date: "2022-04-03"
 output: pdf_document
 ---
 
@@ -51,9 +51,13 @@ library(testthat)
 
 ```{r}
 deeks1 <- 'LOAD DATA HERE'
+deeks1 <- read.csv("data/deeks_ex1.csv") %>% mutate(
+  AgeGrp = case_when( Age==0 ~ "Grp0", Age==1 ~ "Grp1")
+)
+View(deeks1)
 p1 <- 'YOUR GGPLOT CODE HERE'
+p1 <- ggplot(deeks1, aes(y=ave_cd4, x=AgeGrp)) + geom_jitter(width=0.1) + geom_boxplot(alpha=0.4)
 p1
-
 ```
 
 
@@ -63,9 +67,49 @@ p1
 
 ```{r ans2}
 # YOUR T-TEST CODE HERE
+## I will be using 2-sample independent t-test
+
 
 pvalue_deeks <- 'REPLACE WITH P-VALUE ROUNDED TO 2 DECIMAL PLACES'
 
+## manual method, see wk11 p20
+
+
+
+
+deeksMeanByGrp <- deeks1 %>% group_by(Age) %>%  summarise( mean = mean(ave_cd4), 
+                                                           sd   = sd(ave_cd4),
+                                                           length = length(ave_cd4)
+                                                         )
+deeksMeanByGrp
+
+mean_grp0 <- deeksMeanByGrp$mean[1]
+mean_grp1 <- deeksMeanByGrp$mean[2]
+sd_grp0   <- deeksMeanByGrp$sd[1]
+sd_grp1   <- deeksMeanByGrp$mean[2]
+n_grp0    <- deeks1 %>% filter(Age==0) %>% nrow()
+n_grp1    <- deeks1 %>% filter(Age==1) %>% nrow()
+
+print( c( n_grp0, n_grp1 ) )
+
+print( c( mean_grp0, mean_grp1, sd_grp0^2, n_grp0,  sd_grp1^2, n_grp1 ) )
+
+t_score = ( mean_grp0 - mean_grp1 ) / sqrt( (sd_grp0^2/n_grp0 + sd_grp1^2/n_grp1)  )
+t_score  # -0.9943196, does not match result from t.test() :-\
+
+# asking on piazza: https://piazza.com/class/kyf23hxwr4r52s?cid=334
+# lecture didn't cover how to get pvalue using the t-score.... 
+# is it pnorm?  or pt()?   we have never seen a "t-distribution" plot.  what does it look like?  check textbook?
+# pt(-5.0723, lower.tail=T, df=198) 
+
+# formula from class didn't specify abs(), t-test is symetric? 
+
+
+pvalue_deeks_R <-   t.test(ave_cd4 ~ AgeGrp, alternative="two.sided" , data=deeks1)
+#pvalue_deeks_R <-   t.test(ave_cd4 ~ AgeGrp, paired=TRUE , data=deeks1)
+pvalue_deeks_R
+
+# 
 ```
 
 ```{r}
