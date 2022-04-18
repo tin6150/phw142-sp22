@@ -54,7 +54,7 @@ deeks1 <- 'LOAD DATA HERE'
 deeks1 <- read.csv("data/deeks_ex1.csv") %>% mutate(
   AgeGrp = case_when( Age==0 ~ "Grp0", Age==1 ~ "Grp1")
 )
-View(deeks1)
+#View(deeks1)
 p1 <- 'YOUR GGPLOT CODE HERE'
 p1 <- ggplot(deeks1, aes(y=ave_cd4, x=AgeGrp)) + geom_jitter(width=0.1) + geom_boxplot(alpha=0.4)
 p1
@@ -75,8 +75,6 @@ pvalue_deeks <- 'REPLACE WITH P-VALUE ROUNDED TO 2 DECIMAL PLACES'
 ## manual method, see wk11 p20
 
 
-
-
 deeksMeanByGrp <- deeks1 %>% group_by(Age) %>%  summarise( mean = mean(ave_cd4), 
                                                            sd   = sd(ave_cd4),
                                                            length = length(ave_cd4)
@@ -87,14 +85,26 @@ mean_grp0 <- deeksMeanByGrp$mean[1]
 mean_grp1 <- deeksMeanByGrp$mean[2]
 sd_grp0   <- deeksMeanByGrp$sd[1]
 sd_grp1   <- deeksMeanByGrp$mean[2]
-n_grp0    <- deeks1 %>% filter(Age==0) %>% nrow()
-n_grp1    <- deeks1 %>% filter(Age==1) %>% nrow()
+n_grp0    <- deeks1 %>% filter(Age==0) %>% nrow()  ## 153 (not 155)
+n_grp1    <- deeks1 %>% filter(Age==1) %>% nrow()  ## 144   ## n_total=297
 
-print( c( n_grp0, n_grp1 ) )
+#print( c( n_grp0, n_grp1 ) )
 
-print( c( mean_grp0, mean_grp1, sd_grp0^2, n_grp0,  sd_grp1^2, n_grp1 ) )
+#print( c( mean_grp0, mean_grp1, sd_grp0^2, n_grp0,  sd_grp1^2, n_grp1 ) )
 
-t_score = ( mean_grp0 - mean_grp1 ) / sqrt( (sd_grp0^2/n_grp0 + sd_grp1^2/n_grp1)  )
+meanDiff <-  mean_grp0 - mean_grp1   # reversing this just reverse sign of value for t_score
+SE       <-  sqrt(   sd_grp0^2/n_grp0  +  sd_grp1^2/n_grp1    )    ## mg0 - mg1: 24.37888  --> t=-0.9943196
+
+#xx SE       <-  sqrt(  (sd_grp0^2 + sd_grp1^2) / (n_grp0+n_grp1)    )  ## 17.11732  --> t=-1.416133
+
+
+t_score  <-  meanDiff / SE
+
+#t_score <- ( mean_grp0 - mean_grp1 ) / sqrt( ((sd_grp0^2/n_grp0) + (sd_grp1^2/n_grp1))  )
+#t_score <- ( mean_grp1 - mean_grp0 ) / sqrt(   sd_grp0^2/n_grp0  +  sd_grp1^2/n_grp1    )
+
+
+
 t_score  # -0.9943196, does not match result from t.test() :-\
 
 # asking on piazza: https://piazza.com/class/kyf23hxwr4r52s?cid=334
@@ -104,10 +114,25 @@ t_score  # -0.9943196, does not match result from t.test() :-\
 
 # formula from class didn't specify abs(), t-test is symetric? 
 
+manual_pvalue_deeks <- pt(q=t_score, df=n_grp1+n_grp1-2, lower.tail=T)  # compare to t.test() result
+##xx manual_pvalue_deeks <- pt(q=t_score, df=n_grp1+n_grp1-2, lower.tail=T)  *2
+##// manual_pvalue_deeks <- pt(q=-1.2563, df=n_grp1-2, lower.tail=F)*2
+#manual_pvalue_deeks
 
-pvalue_deeks_R <-   t.test(ave_cd4 ~ AgeGrp, alternative="two.sided" , data=deeks1)
-#pvalue_deeks_R <-   t.test(ave_cd4 ~ AgeGrp, paired=TRUE , data=deeks1)
+
+pvalue_deeks_R <-   t.test(ave_cd4 ~ AgeGrp, alternative="two.sided" , data=deeks1)  # p.value=0.21
+# t = -1.2563, df = 286.52, p-value = 0.21
 pvalue_deeks_R
+
+## Lab08 video @ 10:45 only used t.test() ... 
+video_pvalue_deeks <- t.test(deeks1 %>% filter(Age==0) %>% pull( ave_cd4 ),
+                       deeks1 %>% filter(Age==1) %>% pull( ave_cd4 ),
+                       alternative = "two.sided" )
+#video_pvalue_deeks
+# t = -1.2563, df = 286.52, p-value = 0.21  ## same as what I got from t.test() above
+
+pvalue_deeks = 0.21
+pvalue_deeks
 
 # 
 ```
@@ -128,12 +153,19 @@ knitr::include_graphics("src/lab08-spread-function.png")
 
 ```{r}
 deeks2 <- NULL # YOUR CODE HERE
-deeks2
+deeks2 <- read.csv("data/deeks_ex2.csv") 
+deeks2 %>% head(6)
 
 deeks_wide <- NULL # YOUR CODE HERE
-deeks_wide
+
+# lab08 wk11 video @ 14:41
+#deeks_wide <- deeks2 %>% spread(medvl, cd4 )
 
 # YOUR CODE HERE
+deeks_wide <- deeks2 %>% pivot_wider( id_cols=id, names_from=medvl, values_from=cd4 )
+deeks_wide  %>% head(6)
+
+#View(deeks_wide)
 ```
 
 ```{r}
@@ -143,9 +175,9 @@ deeks_wide
 **4. [1 point] Rename the `medvl` = 0 and `medvl` = 1 columns as "high" and "low", respectively. Then calculate the difference in CD4 counts (high - low) for each individual and save this value in a new column `diff`.**
 
 ```{r}
-deeks_wide <- NULL # YOUR CODE HERE
-deeks_wide
 
+deeks_wide <- rename( deeks_wide, high="0", low="1") %>% mutate( diff=high-low)
+deeks_wide %>% head(6)
 
 # YOUR CODE HERE
 ```
@@ -158,10 +190,27 @@ deeks_wide
 
 ```{r}
 p5 <- NULL # YOUR CODE HERE
+p5 <- ggplot( data=deeks_wide, aes(x=diff)) + 
+  geom_histogram(color="white", fill="lightgray") + 
+  geom_vline(aes(xintercept=mean(diff),color="red")) + 
+  theme_minimal(base_size=16)
+
 p5
 
 
-# YOUR CODE HERE
+#colors
+
+
+## not sure why the spagetti plots were added in the lab video, hopefully my lab08.Rmd question list is up-to-date ?
+p5_i <- ggplot(deeks2, aes( y=cd4, x=medvl)) + geom_point( aes(color=id)) + 
+  geom_line( aes( group=id) )
+p5_i
+
+p5_ii <- ggplot(deeks2, aes( y=cd4, x=medvl)) + geom_point( aes(color=id)) + 
+  geom_line( aes( group=id) ) + facet_wrap( ~id )
+p5_ii
+
+
 ```
 
 ```{r}
@@ -172,21 +221,27 @@ p5
 **6. [1 point] Which of the testing procedures that we've learned so far can be used to test the difference between each individual's CD4 count during a time of high vs. low viral load? Perform the test using an R function. Note the estimated mean difference and the provided 95% confidence interval. Report your p-value rounded to 4 decimal places.**
 
 ```{r}
+
+# paired t-test
 p6 <- NULL # YOUR CODE HERE
+paired_t <- t.test( deeks_wide$high , deeks_wide$low, 
+                    alternative='two.sided', paired=T )
+paired_t
+p6 <- round(paired_t$p.value, 4)
 p6
 
-
-# YOUR CODE HERE
 ```
 
 ```{r}
 . = ottr::check("tests/p6.R")
 ```
-_Type your answer here, replacing this text._
+_The estimated mean difference is 48.28 (unit) and the 95% CI rane is (16.59, 79.97) _
 
 \newpage
 
 ### Section II: Coin Flip Game.
+
+// no lab video for this section.
 
 *If you are doing this lab before your lab section, please answer the questions using the sample Googlesheet*.
 
@@ -219,6 +274,10 @@ Flip a coin to see which hand to play the game with first:
 
 **8. Re-do the game, this time with the other hand. Record the results in the google sheet.**
 
+
+#### right hand score: 22
+#### left  hand score: 22   ### well, that confirms i am neither left nor right handed :P
+
 **9. Now we need to read the data from the googlesheet into R.** 
 
 **To read the data from the googlesheet into R, navigate to the lab08-auth-help.Rmd file in the lab08 folder in datahub. Follow the outlined steps to load the data. If you cannot get the google authorization to work, you may download the google sheet and load the data manually.**
@@ -243,23 +302,27 @@ Hit "enter" after your lab. For example, if I am in Lab101B, I would hit "enter"
 #Lab110B: my_key <- "1f04hHZA7Vn36Xu62iWStBPnX6oSAAE7LGOStN9rwjmA"
 
 #sample: my_key <- "1v9Mvm2hAOB3orINrcbVldJaH1UHcsotynn91Ppyi7OY"
+
+#my_key <- "1f04hHZA7Vn36Xu62iWStBPnX6oSAAE7LGOStN9rwjmA"
 ```
 
 Run these lines of code.
 
 # STOP: Remove eval = F before continuing
 
-```{r, eval = F}
+```{r, eval=F}
 our_sheet <- my_key %>%
   read_sheet()
 # This creates a dataframe called our_sheet from the data we entered in our googlesheet.
+
+# I got permission denied... so probably can't proceed further.
 ``` 
 
 **10. These data are very naturally paired. Add a variable to `our_sheet` called `diff` that is the difference between the number of dots hit with the dominant and non-dominant hands and assign this new dataset to an object called `our_sheet_diff`. What two assumptions do we need to make to use a paired t-test? For each assumption, write why you think the assumption is met (or not met). Create a plot and assign it to an object called `p10` to investigate one of the assumptions and comment on whether the plot supports the assumption.**
 
 ```{r}
 our_sheet_diff <- NULL # YOUR CODE HERE
-our_sheet_diff
+#our_sheet_diff <- our_sheet %>% mutate( diff = )
 p10 <- NULL # YOUR CODE HERE
 p10
 

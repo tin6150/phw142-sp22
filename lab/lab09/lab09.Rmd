@@ -1,7 +1,7 @@
 ---
 title: "Lab 09: T tests and ANOVA"
-author: "Your name and student ID"
-date: "today's date"
+author: "Tin Ho 3033518349"
+date: "2022-04-09"
 output: pdf_document
 ---
 
@@ -37,12 +37,27 @@ library(testthat)
 nhanes <- read_csv("data/nhanes.csv") 
 
 nhanes <- na.omit(nhanes) # this code skip rows with missing values
+
+#View(nhanes)
+#str(nhanes)
 ```
 
 **1. [1 point] We are interested in looking at the systolic blood pressure, `bpxsy`, by history of smoking, `hs`. Start by generating an appropriate box plot to look at these data.**
 
+
+// relevant entries: lab video used bpxsy1 so just rolling with that
+
+$ bpxsy1   : num [1:1178] 140 136 118 138 128 120 128 106 134 138 ...
+$ bpxsy2   : num [1:1178] 140 134 124 132 130 120 128 100 136 142 ...
+$ hs       : chr [1:1178] "History of smoking" "No" "No" "No" ...
+
 ```{r}
+
 plot1 <- NULL # YOUR CODE HERE
+
+plot1 <- ggplot( data=nhanes, aes(y=bpxsy1, x=hs)) + geom_boxplot()
+# + geom_points()  will crash R in datahub, just 1200 points it can't handle it!
+
 plot1
 
 ```
@@ -57,8 +72,10 @@ plot1
 
 ```{r hist, echo=TRUE}
 plot2 <- NULL # YOUR CODE HERE
-plot2
+plot2 <- ggplot( data=nhanes, aes(x=bpxsy1)) + geom_histogram() + facet_wrap( ~hs )
 
+
+plot2
 ```
 
 ```{r}
@@ -71,6 +88,7 @@ plot2
 
 ```{r hist2, echo=TRUE}
 p3 <- NULL # YOUR CODE HERE
+p3 <- nhanes %>% group_by( hs ) %>% summarize( Mean=mean(bpxsy1), SD=sd(bpxsy1) )
 p3
 
 ```
@@ -83,13 +101,22 @@ p3
 
 **4. Do we meet the all of the assumptions to run a two-sample t-test? Why or why not?**
 
-_Type your answer here, replacing this text._
+_Yes, requirements for 2-sample t-test is met, as:_
+_Independence: Yes._
+_Normality: Yes._
+_Data is SRS from a much larger population: Yes, that's what NHANES dataset(s) are_
+
 
 \newpage
 
 **5. State the null and alternative hypotheses in the context of this question.**
 
-_Type your answer here, replacing this text._
+_Let mu_yes = mean blood pressure for Smoking History group, and mu_no = mean blood pressure for No smoking history group, then_
+_H_0: mu_yes == mu_no_
+_H_a: mu_yes != mu_no_
+
+
+#### Lab09 video @ 6:17
 
 \newpage
 
@@ -97,6 +124,8 @@ _Type your answer here, replacing this text._
 
 ```{r, echo=TRUE}
 p6 <- NULL # YOUR CODE HERE
+p6 <- t.test( nhanes$bpxsy1 ~ nhanes$hs, alternative="two.sided" )
+ 
 p6
 
 ```
@@ -109,25 +138,44 @@ p6
 
 **7. Use these results to interpret your p-value in the context of this question. Do you reject or fail to reject the null hypothesis?**
 
-_Type your answer here, replacing this text._
+_the obtained p-value from t.test() is 0.82, which is larger than 0.05.  this means there is no evidence to reject the null, thus we fail to reject the null hypothesis._
 
 \newpage
 
-Repeat your analysis above without using the `t.test()` function.
+Repeat your analysis above *without* using the `t.test()` function.
 
 **8. [1 point] First calculate the test statistic by hand. Do not round and assign this value to `t_stat`.**
 
 ```{r}
+
+#### formula is t-test, 2-vars, independent.  Lect 23
+#### t_stat = ( x.bar_a - x.bar_b ) /  sqrt( (s_a^2/n_a) + (s_b^2/n_b) )   
+
+
 # this code gives you the number of smokers in the dataset
 n_s <- nrow(nhanes %>% filter(hs == 'History of smoking'))
-n_s
+
+n_s 
+n_a <- n_s
 
 # this code gives you the number of non-smokers in the dataset
 n_ns <- nrow(nhanes %>% filter(hs == 'No'))
-n_ns
+n_ns 
+n_b <- n_ns
+
+x.bar_a <- p3$Mean[1]
+x.bar_b <- p3$Mean[2]
+
+s_a <- p3$SD[1]
+s_b <- p3$SD[2]
+
+
+
 
 # calculate your test statistic. You can make more objects if you wish.
 t_stat <- NULL # YOUR CODE HERE
+t_stat <- ( x.bar_a - x.bar_b ) /  sqrt( (s_a^2/n_a) + (s_b^2/n_b) )   
+
 t_stat
 
 
@@ -137,11 +185,13 @@ t_stat
 . = ottr::check("tests/p8.R")
 ```
 
+
 **9. [1 point] Now compare your test statistic to a t-distribution with df = 558 and calculate the p-value. This is an approximation using the smaller of the two sample sizes - 1.**
 
 ```{r,echo=TRUE}
 
 p_value <- NULL # YOUR CODE HERE
+p_value <- pt( q=t_stat, df=558, lower.tail=F ) * 2
 p_value
 
 ```
@@ -157,6 +207,18 @@ p_value
 ```{r}
 lowerbound <- NULL # YOUR CODE HERE
 upperbound <- NULL # YOUR CODE HERE
+
+#XX t_star <- qt(p=0.975, lower.tail=T, df=558)
+t_star <- qt(p=0.995, lower.tail=T, df=558)
+# Lab09 video @ 15:18  used p=0.995   cuz Q10 ask for 99% CI, not the normal 95% CI!! baaaaahhhh !
+#t_star
+
+se <-   sqrt( (s_a^2/n_a) + (s_b^2/n_b) ) 
+meanDiff <- x.bar_a - x.bar_b
+
+lowerbound <- meanDiff - t_star*se
+upperbound <- meanDiff + t_star*se
+
 conf_int <- c(lowerbound, upperbound)
 conf_int
 
@@ -165,7 +227,8 @@ conf_int
 ```{r}
 . = ottr::check("tests/p10.R")
 ```
-_Type your answer here, replacing this text._
+_The 99%  CI ranges is [-2.56, 3.06] which include 0, our null hypothesis.  Thus, we do not have enough evidence to reject the null, so we fail to reject the null hypothesis.  99% CI means if we were to run the experiment 100 time, 99 times would contain the true population parameter (mean difference)_
+
 
 \newpage
 
@@ -175,8 +238,8 @@ _Type your answer here, replacing this text._
 
 ```{r}
 plot11 <- NULL # YOUR CODE HERE
+plot11 <- ggplot(data=nhanes, aes(y=bpxsy1, x=bmicat)) + geom_boxplot()
 plot11
-
 ```
 
 ```{r}
@@ -189,6 +252,7 @@ plot11
 
 ```{r hist-aov, echo=TRUE}
 plot12 <- NULL # YOUR CODE HERE
+plot12 <- ggplot(data=nhanes, aes(x=bpxsy1)) + geom_histogram(aes(fill=bmicat)) + facet_wrap(~bmicat)
 plot12
 
 ```
@@ -203,6 +267,8 @@ plot12
 
 ```{r hist2-aov, echo=TRUE}
 p13 <- NULL # YOUR CODE HERE
+p13 <- nhanes %>% group_by( bmicat ) %>% summarize( Mean=mean(bpxsy1), SD=sd(bpxsy1) )
+
 p13
 
 ```
@@ -217,6 +283,8 @@ p13
 
 ```{r,echo=TRUE}
 p14 <- NULL # YOUR CODE HERE
+# formula = continuousVar ~ groupCategory
+p14 <- aov( formula=bpxsy1~bmicat, data=nhanes)
 tidy(p14) # tidy displays your output. It lives in the `broom` package
 
 ```
@@ -231,14 +299,17 @@ tidy(p14) # tidy displays your output. It lives in the `broom` package
 
 ```{r,echo=TRUE}
 p15 <- NULL # YOUR CODE HERE
+p15 <- TukeyHSD(aov(bpxsy1~bmicat, data=nhanes))
 tidy(p15) 
+
+#### I went thru the knitted pdf, all assigment used <- , hopefully no more getting stuck :D.   Thanks!  -Tin
 
 ```
 
 ```{r}
 . = ottr::check("tests/p15.R")
 ```
-_Type your answer here, replacing this text._
+_all the pairwise comparisons have resulting 95% CI that includes 0, thus none of them have evidence to suggest rejecting the null, we thus fail to reject the null, and would have to assume there are no differences in blood pressure in the all the different BMI groups_
 
 \newpage
 
