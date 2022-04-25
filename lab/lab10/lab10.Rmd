@@ -1,7 +1,7 @@
 ---
 title: "Lab 10: Proportions and Inference for Regression"
-author: 'Your name and Student ID'
-date: "Today's date"
+author: 'Tin Ho 30335-18349'
+date: "2022-04-17"
 output: pdf_document
 ---
 
@@ -60,8 +60,24 @@ library(testthat)
 **1. [1 point] Use the `boston2` data to perform a linear regression of `medv` (median value of owner-occupied homes in $1000s) versus `dis` (weighted mean of distances to five Boston employment centers) and tidy the results. Assign the *linear model* to `p1`.** 
 
 ```{r}
+
+#str(boston2)
+
 p1 <- NULL # YOUR CODE HERE
-p1
+linear_model <- lm( medv ~ dis, data=boston2 )
+p1 <- linear_model
+
+
+m <- linear_model$coefficients[[2]] # slope ( [[]] returns a number )
+b <- linear_model$coefficients[[1]] # intercept
+b <- 10#656
+
+library(ggplot2)
+viz <- ggplot(boston2, aes( x=dis, y=medv)) + geom_point() 
+viz2 <- viz + geom_abline( intercept=b, slope=m, lty=2, col="green")
+#viz2
+
+tidy(p1)
 
 ```
 
@@ -73,7 +89,8 @@ p1
 
 **2. Interpret the slope parameter and the p-value from the output above. What null and alternative hypotheses does this p-value refer to?** 
 
-_Type your answer here, replacing this text._
+_the slope coefficient is 1.0916, which is to say for each 1 unit change in the x axis (weighted mean distance in mile), the corresponding change on the y axis (median value in 1000s) increases by a factor of 10.916.  The null hypothesis is for a slop of 0, a flat line, indicating no correlation between distance and median value of houses.  The low p-value of 1e-8 is smaller than alpha=0.5, thus we have evidence to reject the null hypothesis, and have evidence to support that alternative hypothesis: that there is a correlation between distance and median house value._
+
 
 \newpage
 
@@ -81,6 +98,17 @@ _Type your answer here, replacing this text._
 
 ```{r}
 p3 <- NULL # YOUR CODE HERE
+m <- linear_model$coefficients[[2]]  # 1.0916
+b.hat <- m
+SE <- 0.1883784 # from table tidy(linear_model)
+n <- 506
+t.star = qt( p=0.975, df=(n-2) )  # 1.964682
+
+ci.lower <- b.hat - t.star * SE
+ci.upper <- b.hat + t.star * SE
+
+
+p3 <- round( c(ci.lower, ci.upper), 4 )
 p3
 
 ```
@@ -88,7 +116,7 @@ p3
 ```{r}
 . = ottr::check("tests/p3.R")
 ```
-_Type your answer here, replacing this text._
+_The 95% CI was found to be (0.7215, 1.4617).  I won't quite expect the same pattern to hold today.  Suburbia is becoming out of style, commute time is a nagative factor for much people.  It seems that nowadays, hip cities like Boston and SF, the closer to city center (work), the higher the house price is.  But distance is just too simplistic of a measure to predict house prices, there are many other variables and cofounders._
 
 \newpage
 
@@ -96,6 +124,7 @@ _Type your answer here, replacing this text._
 
 ```{r}
 p4 <- NULL # YOUR CODE HERE
+p4 <- round( glance( linear_model )$r.squared, 2 )
 p4
 
 ```
@@ -103,7 +132,7 @@ p4
 ```{r}
 . = ottr::check("tests/p4.R")
 ```
-_Type your answer here, replacing this text._
+_No, given the r.squared value of only 0.6, dis does NOT explain well the medv median value of the _
 
 \newpage
 
@@ -111,8 +140,13 @@ _Type your answer here, replacing this text._
 
 ```{r}
 p5 <- NULL # YOUR CODE HERE
-p5
 
+viz  <- ggplot(boston2, aes( x=dis, y=medv)) + geom_point() 
+viz3 <- viz + geom_smooth( method="lm", se=FALSE) + 
+  geom_abline( slope=0, intercept=mean(boston2$medv), col="red" )
+
+p5 <-viz3
+p5
 ```
 
 ```{r}
@@ -125,26 +159,59 @@ p5
 
 ```{r}
 
+
+# lab10 video @ [8:40]
+
+data_with_predictions <- augment( linear_model )
+
 # first plot
 plot1 <- NULL # YOUR CODE HERE
+plot1 <- ggplot( data_with_predictions, aes(x=dis, y=medv)) +
+  geom_smooth( method="lm", se=F ) + 
+  geom_point( alpha=0.5 ) +
+  geom_segment( aes( xend=dis, yend=.fitted), lty=2, alpha=0.5 ) +
+  theme_minimal( base_size=16) + 
+  labs( title="(a) Scatter plot")
+
 plot1
 
 # second plot
 plot2 <- NULL # YOUR CODE HERE
+plot2 <- ggplot( data_with_predictions, aes( sample=.resid )) +
+  geom_qq() + geom_qq_line() + 
+  labs( y="residuals", x="Theoretical quantiles", title="(b) QQplot")
 plot2
 
 # third plot
 plot3 <- NULL # YOUR CODE HERE
+plot3 <- ggplot( data_with_predictions, aes( y=.resid, x=.fitted )) +
+  geom_point() +
+  geom_hline( aes( yintercept=0 )) +
+  labs( y="Residuals", x="Fitted values", title="(c) Fitted vs residuals")
 plot3
+# expect random scatter w/o pattern ==> good fit.  we don't have that here 
+
+# video @ [11:11]
+# see https://piazza.com/class/kyf23hxwr4r52s?cid=402
+# The parallel code for this question is in the regression inference.Rmd in the lecture folder on DataHub. It's under the "Example 1: Investigating the assumptions" header.
+
 
 plot4 <- NULL # YOUR CODE HERE
-plot4
 
+predictions_reshaped <- data_with_predictions %>% select(.resid, .fitted) %>%
+  gather(key = "type", value = "value", .fitted, .resid)
+
+plot4 <- ggplot( predictions_reshaped, aes( y=value )) +
+  geom_boxplot( aes( fill=type ) ) + 
+  labs(title="(d) Amount explained")
+
+plot4
 ```
 
-_Type your answer here, replacing this text._
+_Yes, these plots raise many concerns on this linear model of dis vs medv.  (a) scatter plots shows that many predicted b.hat values are far from the linear model.  (b) qqplot shows that there is a huge deviation at the top right corner, indicating many outliers.  (c) scatter plot should be random, but I think I see a fan in pattern._
 
 Regardless of your answer, we will continue using the model to make inferences about the relationship between `med` and `dis`.
+
 
 \newpage
 
@@ -160,8 +227,26 @@ OPTIONAL: If time allows, add the four CIs to a scatter plot of the data (along 
 
 ```{r}
 ci_dataframe <- data.frame(dis = c(2.5, 5.0, 7.5, 10))
+newdata <- ci_dataframe
+
 p7 <- NULL # YOUR CODE HERE
+# linear_model is the lm() for boston2 defined above for p1.
+pointwise_ci <- predict( linear_model,  newdata, interval="confidence") %>% cbind( newdata )
+
+p7 <- round( 
+            pointwise_ci %>%  pull(lwr)
+            , 2 )
+
 p7
+
+p7_plot <- ggplot( boston2, aes( x=dis, y=medv)) +
+  geom_point() +
+  geom_smooth( method="lm", se=F ) + 
+  geom_segment( data=pointwise_ci, 
+                aes( x=dis, xend=dis, y=lwr, yend=upr), 
+                color="red")
+# color can be shortened to col, but then that maybe confusing with column
+p7_plot
 
 ```
 
@@ -173,19 +258,23 @@ p7
 
 **8. Interpret the point wise 95% confidence interval of the median house price when the distance = 10.** 
 
-_Type your answer here, replacing this text._
+_If we use the same sampling method and take 100 samples of houses in Boston with a distance of 10 miles to a Bsoton employment center, we would expect the CI of 95 of those samples to contain the true neighborhood median home value to be between 26.88 and 31.73 (in thousands of dollars)_
+
+// video @ 13:21
 
 \newpage
 
 **9. Do the CI's differ in length for different values of `dis`? Why or why not?**
 
-_Type your answer here, replacing this text._
+_Yes, the CI range becomes wider as dis gets to a larger value, this is because the predictions is further from the model, there are more variability, thus resulting in a less precise CI._
 
 \newpage
 
 ## Section 2: Inference for Proportions
 
 **The rest of the lab assignment is for practice only. You are responsible for understanding the material but these questions will not be graded.**
+
+
 
 ## Tests of Changes in Sex Ratios Based on a Single Sample
 
@@ -196,16 +285,35 @@ In this lab, we will compare the four methods we learned to calculate CIs for pr
 **10. Use the Normal approximation to construct a 95% confidence interval in this high stress group. We also called this specific method of constructing the CI the "large sample method". Assign the object `large_sample_ci` to a vector of the lower bound and upper bound rounded to 4 decimal places.**
 
 ```{r large-sample-method}
-large_sample_ci <- NULL # YOUR CODE HERE
-large_sample_ci
+#### video @ 14:45
 
+large_sample_ci <- NULL # YOUR CODE HERE
+
+n_q10  <- 38
+n      <- n_q10
+pb <- 14/38 # proportion of boys aka lead :P
+
+#### CI: estimate -/+ criticalVal * variability
+
+p.hat <- pb
+z.star <- qnorm(0.025, lower.tail=F)  #1.96
+se_q10 <- sqrt( ( p.hat * (1-p.hat) ) / n   )
+
+
+large_sample_ci <- round( c(
+ p.hat - (z.star * se_q10) , 
+ p.hat + (z.star * se_q10)  ), 4)
+
+m1 <- c( large_sample_ci, p.hat )
+
+large_sample_ci
 
 ```
 
 ```{r}
 . = ottr::check("tests/p10.R")
 ```
-_Type your answer here, replacing this text._
+_The 95% CI was found to have proportion range from 21.51% to 52.18%._
 
 \newpage
 
@@ -213,15 +321,18 @@ _Type your answer here, replacing this text._
 
 ```{r Wilson-score-method}
 wilson_score_ci <- NULL # YOUR CODE HERE
+
+#### Method 3, prop.test()
+method3 <- prop.test(x=14, n=38, conf.level=0.95)
+wilson_score_ci <- round( method3$conf.int[1:2], 4 )
+m3 <- c( wilson_score_ci, p.hat )
 wilson_score_ci
-
-
 ```
 
 ```{r}
 . = ottr::check("tests/p11.R")
 ```
-_Type your answer here, replacing this text._
+_The 95% CI using wilson score was (22.29%,  54.00%)._
 
 \newpage
 
@@ -229,15 +340,27 @@ _Type your answer here, replacing this text._
 
 ```{r plus-4-method}
 plus_4_ci <- NULL # YOUR CODE HERE
-plus_4_ci
 
+p.tilde <- (14+2)/(38+4)
+se.til  <- sqrt(  p.tilde * (1-p.tilde)/(38+4) )
+
+ci_low   <- p.tilde - (z.star * se.til)
+ci_high  <- p.tilde + (z.star * se.til)
+
+
+
+plus_4_ci <- round( c( ci_low, ci_high ), 4)
+
+m2 <- c( plus_4_ci, p.tilde )  # or was i still to use p.hat as the estimate ? ++++
+
+plus_4_ci
 
 ```
 
 ```{r}
 . = ottr::check("tests/p12.R")
 ```
-_Type your answer here, replacing this text._
+_Using the Plus4 method, 95% CI was found to be (23.41%, 52.78%)_
 
 \newpage
 
@@ -245,6 +368,12 @@ _Type your answer here, replacing this text._
 
 ```{r Clopper-Pearson-method}
 exact_method_ci <- NULL # YOUR CODE HERE
+
+meth4 <- binom.test(x=14, n=38, conf.level=0.95)
+
+exact_method_ci <- round( meth4$conf.int[1:2], 4 )
+
+m4 <- c( exact_method_ci, p.hat )
 exact_method_ci
 
 
@@ -253,7 +382,7 @@ exact_method_ci
 ```{r}
 . = ottr::check("tests/p13.R")
 ```
-_Type your answer here, replacing this text._
+_The clover Pearson method found the 95% CI to be (21.81%, 54.01%)_
 
 \newpage
 
@@ -264,26 +393,32 @@ _Type your answer here, replacing this text._
 # each confidence interval. To do this, replace each instance of 0.00 with the
 # estimate from your calculations above.
 sex_CIs <- tibble(method   = c("large sample", "Exact", "Wilson", "Plus 4"),
-                  lower_CI = c(0.0           , 0.0    ,  0.0    ,  0.0),
-                  upper_CI = c(0.0           , 0.0    ,  0.0    ,  0.0),
-                  estimate = c(0.0           , 0.0    ,  0.0    ,  0.0)
+                  lower_CI = c(m1[1]       , m4[1]    ,  m3[1]    ,  m2[1]),
+                  upper_CI = c(m1[2]       , m4[2]    ,  m3[2]    ,  m2[2]),
+                  estimate = c(m1[3]       , m4[3]    ,  m3[3]    ,  m2[3])
                   )
+
+#                  lower_CI = c(0.0           , 0.0    ,  0.0    ,  0.0),
+#                  upper_CI = c(0.0           , 0.0    ,  0.0    ,  0.0),
+#                  estimate = c(0.0           , 0.0    ,  0.0    ,  0.0)
+
+
+# video @ 20:20
 # Build the ggplot incrementally, to understand how it works.
 # Step 1: (why do we put a horizontal line at 50?)
-ggplot(data = sex_CIs, aes(x = method, y = estimate)) + 
+no.show <- ggplot(data = sex_CIs, aes(x = method, y = estimate)) + 
   geom_point() + 
   geom_hline(aes(yintercept = 50), lty = 2)
 
 
 # Step 2:
-ggplot(data = sex_CIs, aes(x = method, y = estimate)) + 
+p14 <- ggplot(data = sex_CIs, aes(x = method, y = estimate)) + 
   geom_point() +
-  geom_hline(aes(yintercept = 50), lty = 2) +
+  geom_hline(aes(yintercept = 0.50), lty = 2) +
   geom_segment(aes(x = method, xend = method, y = lower_CI, yend = upper_CI)) +
   labs(y = "Estimate with 95% CI")
 
 
-p14 <- NULL # YOUR CODE HERE
 p14
 
 
@@ -296,13 +431,13 @@ p14
 
 What does `geom_segment()` do? In particular, what do `x`, `xend`, `y` and `yend` specify in this case?
 
-_Type your answer here, replacing this text._
+_geom_segment draws a line segment.  it should have 4 coordinate points, but our x-axis is a categorical variable, thus both start and ending point for the x coordinate is the "method" variable, and R will draw a line of width assigned to the category.  For the end coordinate of y, it spans from y to yend, which we specify as lower and upper limit of the CI interval_
 
 \newpage
 
 **15. Based on this plot, what can you say about the confidence intervals for the sex ratio in the high stress group?**
 
-_Type your answer here, replacing this text._
+_In this high stress group, their mean ratio for their new born is noticeably away from the expected 0.5 50% girls 50% boys ratio.  However, the 95% CI used in all 4 methods include the 0.5 halfway mark, thus there isn't enough evidence to support rejecting the null, that this group has a sex ratio that is statistically significant (at the 95% confidence level) that they are away from the norm.  This could just be normal variability.  Running studies with larger sample size would narrow the CI range, and potentially then show whether the ratio truly diverge from the norm with enough statistic rigors._
 
 \newpage
 
