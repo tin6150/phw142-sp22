@@ -1,7 +1,7 @@
 ---
 title: "Lab 11: The Relationship Between the Chi-Square Test for Independence and the Two Sample Z-Test for Proportions"
-author: "Name and Student ID"
-date: "Today's Date"
+author: "Tin Ho 3033518349"
+date: "2022-04-25"
 output: pdf_document
 ---
 
@@ -42,15 +42,99 @@ In this sample, `chd69 = 1` implies that a CHD event occurred. `dibpat0=1` codes
 
 **1. State the null and 2 sided alternative hypotheses in words and using probability notation.**
 
-_Type your answer here, replacing this text._
+_H_o: proportion of CHD with Type A personality = proportion of CHD with Type B personality_
+
+H_o:                 p_A = p_B
+
+H_0: P( CHD=1|personality=A ) = P( CHD=1|personality=B)
+
+H_0: P( chd69=1|dibpat0=1 )    = P( chd69=1|dibpat0=0)
+
+// Lab video @ 5:31
+// Lab video https://bcourses.berkeley.edu/courses/1513233/pages/week-14 
+// good contrast between two sample z-test (proportions) and chi-sq
 
 \newpage
 
 **2. [1 point] Calculate a two sample z-test statistic to test the null hypothesis that behavior type is independent of CHD. Report the p-value rounded to 4 decimal places.**
 
+
+
+|          | CHD=1  |No CHD (0)| Total  |  p.hat                         |
+|----------|--------|----------|--------|--------------------------------|
+|Type A (1)|    16  |    84    |   100  | 16/100 # p.hat1                |  
+|----------|--------|----------|--------|--------------------------------|
+|Type B (0)|     3  |    97    |   100  |  3/100 # p.hat2                |
+|----------|--------|----------|--------|--------------------------------|
+|Total     |    19  |   181    |   200  | 19/200 # p.hat aka pooled prop |
+
+
+
 ```{r}
+library(dplyr)
 p_value <- NULL # YOUR CODE HERE
-p_value
+# these are by hand
+
+# step 1: calc num of peep and prop with CHD for Type A (dipat0=1) and Type B personalities
+twoByTwo_cells <- dat %>% group_by(chd69, dibpat0) %>%
+    summarize( count = n() ) 
+twoByTwo_cells
+
+chd69_margin <- dat %>% group_by(chd69) %>% count()
+
+#      summarize( count = n() ) 
+chd69_margin
+
+personality_margin <- dat %>% group_by(dibpat0) %>%  count()
+personality_margin
+
+
+#### Lab11 video solution:
+dipbat0_prop <- dat %>% group_by(dibpat0) %>% 
+  summarize( count = n(),
+  proportionCHD = mean(chd69) )
+#### mean is a shortcut to proportion for binary data!
+#### cuz numerator is count of success, so sum of data
+#### and denominator is sample total, which is same base for both proportion and mean!
+dipbat0_prop
+
+#### so she calculated  proportions with CHD for the two personality type already, 
+#### not counts values for the cells of 2x2.
+
+#  P( chd69=1|dibpat0=1 )    = P( chd69=1|dibpat0=0)
+#        16 / 100                     3 / 100
+
+# so Step 1 is really to
+#   find p.hat1, p.hat2
+#          .16     .03
+
+p.hat1 <- .16   ## CHD rate among personality=A  [retrieve from 2x2]
+p.hat2 <- .03   ## CHD rate among personality=B  
+
+
+# step 2: cal pooled proportions under H_0
+# ie find p.hat
+# p.hat is calc assuming null is true.  success count is "pooled" across all samples
+p.hat <- 19/200  # 0.095 
+
+#### video @ 14:21
+pooled_p <- dat %>% summarize( p_under_null = mean(chd69))  
+pooled_p  # also 0.095
+
+# step 3: calc SE under H_0 using the pooled proportions
+
+n1 <- 100
+n2 <- 100
+SE <- sqrt( p.hat * (1-p.hat) * ((1/n1)+(1/n2)) )  # video ans: 0.04146685
+
+# step 4: calc z stat
+z_stat <- (p.hat1 - p.hat2 ) / SE
+
+# step 5: cal p-value of z stat.  here want round(4)
+p_value <-   2 * pnorm(q=z_stat, lower.tail=F)  %>% round(4)    # get 0.0018, the %>% mess things up!
+p_value <- ( pnorm(q=z_stat, lower.tail=F) *2 ) %>% round(4)    # this get 0.0017
+
+p_value  # .0017
 
 ```
 
@@ -64,8 +148,17 @@ p_value
 
 ```{r}
 p_value_using_code <- NULL # YOUR CODE HERE
-p_value_using_code
 
+# video @ 19:14
+p_value_using_R    <- prop.test( x=c(3,16),
+                                 n=c(100,100),
+                                 correct=F)
+
+#### hmmm... prop.test()  can't take raw data, have to provide it with data that corresponds to cells of 2x2 or RxC contingency table
+
+
+p_value_using_code <- p_value_using_R$p.value %>% round(4)
+p_value_using_code
 ```
 
 ```{r}
@@ -78,21 +171,41 @@ In the previous questions, you calculated the two sample z-test comparing two pr
 
 **4. Make a 2 by 2 table of CHD vs. personality type and calculate the chi-square test statistic by hand. Calculate the p-value using an R function.**
 
-          CHD      No CHD    Total  
--------|--------|----------|--------|
-Type A |        |          |        |
--------|--------|----------|--------| 
-Type B |        |          |        |
--------|--------|----------|--------|
-Total  |        |          |        |
+Ei = ( row tot x col tol ) / n_tot
+
+
+
+|          | CHD=1  |No CHD (0)| Total  |  p.hat                         |
+|----------|--------|----------|--------|--------------------------------|
+|Type A (1)|    16  |    84    |   100  | 16/100 # p.hat1                |  
+|----------|--------|----------|--------|--------------------------------|
+|Type B (0)|     3  |    97    |   100  |  3/100 # p.hat2                |
+|----------|--------|----------|--------|--------------------------------|
+|Total     |    19  |   181    |   200  | 19/200 # p.hat aka pooled prop |
 
 ```{r}
-p4 <- NULL # YOUR CODE HERE
+
+Ea <- (100*19)/200
+Eb <- (100*181)/200
+Ec <- 100*19/200
+Ed <- 100*181/200
+c(Ea,Eb,Ec,Ed)
+
+chi.sq.by.hand <-  
+  ( (Ea-16)^2/Ea ) +
+  ( (Eb-84)^2/Eb ) +
+  ( (Ec- 3)^2/Ec ) +
+  ( (Ed-97)^2/Ed ) 
+chi.sq.by.hand
+
+
+pv.p.value <- pchisq(q=chi.sq.by.hand, df=1, lower.tail=F)
+p4 <- pv.p.value
 p4
 
 ```
 
-_Type your answer here, replacing this text._
+_The Chi-squared stat was found to be 9.8284.  the p-value was wound to be 0.0017_
 
 \newpage
 
@@ -100,7 +213,22 @@ _Type your answer here, replacing this text._
 
 ```{r}
 p_value_chisq <- NULL # YOUR CODE HERE
-p_value_chisq
+
+# video @ 30:15
+# easiest way to generate 2x2 table out of raw data!
+dat %>% group_by(dibpat0) %>% count(chd69)
+
+# wk14 Lect 32 slide 33
+two_way_tibble <- tribble( ~chd, ~ nochd, 
+                           16,   84, 
+                            3,   97)
+
+chi.tst <- chisq.test(two_way_tibble, correct=F)
+
+
+
+p_value_chisq <- chi.tst$p.value %>% round(4)
+p_value_chisq 
 
 ```
 
@@ -112,7 +240,7 @@ p_value_chisq
 
 **6. Compare the chi-squared test statistic to the z-test statistic and the (z-test statistic)^2. What do you notice? What do you notice about the p-values for the two tests?**
 
-_Type your answer here, replacing this text._
+_Wow, sqrt(chi-sq) = z-test stat!!_
 
 \newpage
 
